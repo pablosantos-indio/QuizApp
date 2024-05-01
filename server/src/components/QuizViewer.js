@@ -10,7 +10,7 @@ function QuizViewer({ token }) {
     const fetchQuizData = async () => {
       try {
         const response = await axios.get(
-          `http://localhost:3000/quizzes/${token}`,
+          `http://localhost:3001/api/quizzes/${token}`,
         );
         setQuizData(response.data);
       } catch (error) {
