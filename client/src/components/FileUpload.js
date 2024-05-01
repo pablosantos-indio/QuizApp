@@ -1,29 +1,35 @@
 import React, { useState } from 'react';
+import axios from 'axios';
 
 function FileUpload() {
-    const [file, setFile] = useState(null);
     const [token, setToken] = useState('');
     const [errorMessage, setErrorMessage] = useState('');
 
-    const handleFileChange = (event) => {
+    const handleFileChange = event => {
         const file = event.target.files[0];
-        if (!file) {
+        if (!file) return;
+
+        const fileExtension = file.name.split('.').pop();
+        if (!['csv', 'xls', 'xlsx'].includes(fileExtension)) {
+            setErrorMessage('Invalid file type. Please upload a CSV, XLS, or XLSX file.');
             return;
         }
+
         const formData = new FormData();
         formData.append('file', file);
         formData.append('token', token);
 
-        fetch(`${process.env.REACT_APP_API_URL}/upload`, {
-            method: 'POST',
-            body: formData,
+        axios.post(`${process.env.REACT_APP_API_URL}/upload`, formData, {
+            headers: {
+                'Content-Type': 'multipart/form-data'
+            }
         })
-        .then(response => response.json())
-        .then(data => {
-            if (data.success) {
+        .then(response => {
+            if (response.data.success) {
                 console.log('File uploaded successfully');
+                setErrorMessage('');
             } else {
-                setErrorMessage(data.message);
+                setErrorMessage(response.data.message);
             }
         })
         .catch(error => {
@@ -34,7 +40,18 @@ function FileUpload() {
 
     return (
         <div>
-            <input type="file" onChange={handleFileChange} />
+            <input
+                type="text"
+                value={token}
+                onChange={e => setToken(e.target.value)}
+                placeholder="Enter a token (must include at least one letter and one number)"
+                pattern="[A-Za-z0-9]+"
+                required
+            />
+            <input
+                type="file"
+                onChange={handleFileChange}
+            />
             {errorMessage && <p>{errorMessage}</p>}
         </div>
     );

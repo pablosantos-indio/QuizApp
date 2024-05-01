@@ -24,6 +24,7 @@ CREATE TABLE species (
     user_login VARCHAR(255),
     user_name VARCHAR(255),
     quiz_id INT,
+    -- INDEX idx_quiz_id (quiz_id),
     FOREIGN KEY (quiz_id) REFERENCES quizzes(id) ON DELETE CASCADE
 );
 
