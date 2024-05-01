@@ -1,5 +1,7 @@
 -- Check if the database exists and create it if necessary
-CREATE DATABASE IF NOT EXISTS quizdb;
+CREATE DATABASE IF NOT EXISTS quizdb
+CHARACTER SET utf8mb4
+COLLATE utf8mb4_unicode_ci;
 USE quizdb;
 
 -- Drop tables if they exist to avoid duplication
@@ -12,7 +14,7 @@ CREATE TABLE quizzes (
     token VARCHAR(255) UNIQUE NOT NULL,
     question_type ENUM('scientific', 'common', 'both'),
     createdAt DATETIME NOT NULL DEFAULT CURRENT_TIMESTAMP
-);
+) DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci;
 
 -- Create the species table
 CREATE TABLE species (
@@ -26,7 +28,7 @@ CREATE TABLE species (
     quiz_id INT,
     -- INDEX idx_quiz_id (quiz_id),
     FOREIGN KEY (quiz_id) REFERENCES quizzes(id) ON DELETE CASCADE
-);
+) DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci;
 
 -- Set up an automatic event to clear old data from quizzes and species tables
 DELIMITER //

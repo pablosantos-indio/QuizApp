@@ -1,4 +1,4 @@
-import { Injectable } from '@nestjs/common';
+import { BadRequestException, Injectable } from '@nestjs/common';
 import { InjectRepository } from '@nestjs/typeorm';
 import { Repository } from 'typeorm';
 import { Quiz } from '../quiz/quiz.entity';
@@ -16,18 +16,17 @@ export class UploadService {
 
   async handleFile(file: Express.Multer.File, token: string): Promise<any> {
     if (!file.originalname.match(/\.xlsx$|\.xls$|\.csv$/)) {
-      return {
-        success: false,
-        message: 'Invalid file type. Upload XLSX, XLS, or CSV files only.',
-      };
+      throw new BadRequestException(
+        'Invalid file type. Upload XLSX, XLS, or CSV files only.',
+      );
     }
 
-    // Leitura do arquivo e extração dos dados
+    // File reading and data extraction
     const workbook = XLSX.read(file.buffer, { type: 'buffer' });
     const worksheet = workbook.Sheets[workbook.SheetNames[0]];
     const jsonData = XLSX.utils.sheet_to_json(worksheet, { header: 1 });
 
-    // Verificação das colunas necessárias
+    // Verification of the necessary columns
     const requiredColumns = [
       'user_login',
       'user_name',
@@ -48,23 +47,23 @@ export class UploadService {
       };
     }
 
-    // Mapeamento dos índices das colunas para extração dos dados
+    // Mapping of column indexes for data extraction
     const columnIndex = headers.reduce((acc, col, index) => {
       acc[col] = index;
       return acc;
     }, {});
 
-    // Remoção do cabeçalho
+    // Remove the header
     jsonData.shift();
 
-    // Criação do quiz
+    // Creation of the quiz
     const quiz = this.quizRepository.create({
       token: token,
-      question_type: 'both', // Definir de acordo com a lógica necessária
+      question_type: 'both', // Define according to the necessary logic
     });
     const savedQuiz = await this.quizRepository.save(quiz);
 
-    // Inserção dos dados de espécies
+    // Species data insertion
     const speciesData = jsonData.map((row) => ({
       quiz: savedQuiz,
       scientific_name: row[columnIndex['scientific_name']],
