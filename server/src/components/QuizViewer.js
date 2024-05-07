@@ -1,5 +1,3 @@
-// client/src/components/QuizViewer.js
-
 import React, { useState, useEffect } from 'react';
 import axios from 'axios';
 

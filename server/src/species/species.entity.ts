@@ -24,6 +24,12 @@ export class Species {
   @Column({ nullable: true })
   url: string;
 
+  @Column()
+  user_login: string;
+
+  @Column()
+  user_name: string;
+
   @ManyToOne(() => Quiz, (quiz) => quiz.species)
   @JoinColumn({ name: 'quiz_id' })
   quiz: Quiz;
