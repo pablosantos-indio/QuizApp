@@ -18,16 +18,21 @@ CREATE TABLE quizzes (
 
 -- Create the species table
 CREATE TABLE species (
-    id INT AUTO_INCREMENT PRIMARY KEY,
-    scientific_name VARCHAR(255) NOT NULL,
-    common_name VARCHAR(255) NOT NULL,
-    image_url VARCHAR(255),
-    url VARCHAR(255),
-    user_login VARCHAR(255),
-    user_name VARCHAR(255),
-    quiz_id INT,
-    -- INDEX idx_quiz_id (quiz_id),
-    FOREIGN KEY (quiz_id) REFERENCES quizzes(id) ON DELETE CASCADE
+  id INT AUTO_INCREMENT PRIMARY KEY,
+  scientific_name VARCHAR(255) NOT NULL,
+  common_name VARCHAR(255) NOT NULL,
+  image_url VARCHAR(255),
+  url VARCHAR(255),
+  user_login VARCHAR(255),
+  license VARCHAR(255), -- Updated to reflect license requirement
+  taxon_class_name VARCHAR(255),
+  taxon_order_name VARCHAR(255),
+  taxon_family_name VARCHAR(255),
+  taxon_genus_name VARCHAR(255),
+  taxon_species_name VARCHAR(255),
+  quiz_id INT,
+  INDEX idx_quiz_id (quiz_id)
+  FOREIGN KEY (quiz_id) REFERENCES quizzes(id) ON DELETE CASCADE
 ) DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci;
 
 -- Set up an automatic event to clear old data from quizzes and species tables
