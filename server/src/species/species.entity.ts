@@ -28,7 +28,22 @@ export class Species {
   user_login: string;
 
   @Column()
-  user_name: string;
+  license: string;
+
+  @Column({ nullable: true })
+  taxon_class_name: string;
+
+  @Column({ nullable: true })
+  taxon_order_name: string;
+
+  @Column({ nullable: true })
+  taxon_family_name: string;
+
+  @Column({ nullable: true })
+  taxon_genus_name: string;
+
+  @Column({ nullable: true })
+  taxon_species_name: string;
 
   @ManyToOne(() => Quiz, (quiz) => quiz.species)
   @JoinColumn({ name: 'quiz_id' })
