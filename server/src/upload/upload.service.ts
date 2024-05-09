@@ -75,7 +75,6 @@ export class UploadService {
     }));
 
     await this.speciesRepository.save(speciesData);
-
     return {
       success: true,
       message: 'File processed and data inserted successfully.',
