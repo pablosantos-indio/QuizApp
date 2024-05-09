@@ -17,62 +17,67 @@ export class UploadService {
   async handleFile(file: Express.Multer.File, token: string): Promise<any> {
     if (!file.originalname.match(/\.xlsx$|\.xls$|\.csv$/)) {
       throw new BadRequestException(
-        'Invalid file type. Upload XLSX, XLS, or CSV files only.',
+        'Only XLSX, XLS, or CSV files are accepted.',
       );
     }
 
-    // File reading and data extraction
+    // Read the file and parse it as JSON
     const workbook = XLSX.read(file.buffer, { type: 'buffer' });
     const worksheet = workbook.Sheets[workbook.SheetNames[0]];
     const jsonData = XLSX.utils.sheet_to_json(worksheet, { header: 1 });
 
-    // Verification of the necessary columns
+    const headers: string[] = jsonData[0] as string[];
     const requiredColumns = [
       'user_login',
-      'user_name',
+      'license',
       'url',
       'image_url',
       'scientific_name',
       'common_name',
+      'taxon_class_name',
+      'taxon_order_name',
+      'taxon_family_name',
+      'taxon_genus_name',
+      'taxon_species_name',
     ];
-    const headers: string[] = jsonData[0] as string[];
+
     const missingColumns = requiredColumns.filter(
       (col) => !headers.includes(col),
     );
 
     if (missingColumns.length > 0) {
-      return {
-        success: false,
-        message: `Missing required columns: ${missingColumns.join(', ')}.`,
-      };
+      throw new BadRequestException(
+        `Missing required columns: ${missingColumns.join(', ')}`,
+      );
     }
 
-    // Mapping of column indexes for data extraction
-    const columnIndex = headers.reduce((acc, col, index) => {
-      acc[col] = index;
-      return acc;
-    }, {});
-
-    // Remove the header
-    jsonData.shift();
-
-    // Creation of the quiz
+    // Continue with file processing if all columns are present
     const quiz = this.quizRepository.create({
       token: token,
-      question_type: 'both', // Define according to the necessary logic
+      question_type: 'both',
     });
-    const savedQuiz = await this.quizRepository.save(quiz);
+    await this.quizRepository.save(quiz);
 
-    // Species data insertion
-    const speciesData = jsonData.map((row) => ({
-      quiz: savedQuiz,
-      scientific_name: row[columnIndex['scientific_name']],
-      common_name: row[columnIndex['common_name']],
-      image_url: row[columnIndex['image_url']],
-      url: row[columnIndex['url']],
-      user_login: row[columnIndex['user_login']],
-      user_name: row[columnIndex['user_name']],
-    }));
+    const speciesData = jsonData.slice(1).map((row) => {
+      const indexMap = headers.reduce(
+        (acc, header, index) => ({ ...acc, [header]: index }),
+        {},
+      );
+      return this.speciesRepository.create({
+        quiz,
+        user_login: row[indexMap['user_login']],
+        license: row[indexMap['license']],
+        url: row[indexMap['url']],
+        image_url: row[indexMap['image_url']],
+        scientific_name: row[indexMap['scientific_name']],
+        common_name: row[indexMap['common_name']],
+        taxon_class_name: row[indexMap['taxon_class_name']],
+        taxon_order_name: row[indexMap['taxon_order_name']],
+        taxon_family_name: row[indexMap['taxon_family_name']],
+        taxon_genus_name: row[indexMap['taxon_genus_name']],
+        taxon_species_name: row[indexMap['taxon_species_name']],
+      });
+    });
 
     await this.speciesRepository.save(speciesData);
     return {

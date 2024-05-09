@@ -39,10 +39,13 @@ function FileUpload() {
                     'Content-Type': 'multipart/form-data'
                 }
             });
-            setErrorMessage(response.data.message);
+            if (!response.data.success) {
+                setErrorMessage(response.data.message);
+            } else {
+                setErrorMessage('File uploaded successfully!');
+            }
         } catch (error) {
-            console.error('Upload failed:', error);
-            setErrorMessage('An error occurred while uploading the file.');
+            setErrorMessage(error.response.data.message || 'An error occurred while uploading the file.');
         }
     };
 
