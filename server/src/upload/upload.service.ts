@@ -41,8 +41,12 @@ export class UploadService {
       'taxon_species_name',
     ];
 
+    const indexMap = headers.reduce(
+      (acc, header, index) => ({ ...acc, [header]: index }),
+      {},
+    );
     const missingColumns = requiredColumns.filter(
-      (col) => !headers.includes(col),
+      (col) => indexMap[col] === undefined,
     );
 
     if (missingColumns.length > 0) {
@@ -51,18 +55,10 @@ export class UploadService {
       );
     }
 
-    // Continue with file processing if all columns are present
-    const quiz = this.quizRepository.create({
-      token: token,
-      question_type: 'both',
-    });
+    const quiz = this.quizRepository.create({ token, question_type: 'both' });
     await this.quizRepository.save(quiz);
 
     const speciesData = jsonData.slice(1).map((row) => {
-      const indexMap = headers.reduce(
-        (acc, header, index) => ({ ...acc, [header]: index }),
-        {},
-      );
       return this.speciesRepository.create({
         quiz,
         user_login: row[indexMap['user_login']],
