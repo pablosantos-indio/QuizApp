@@ -5,47 +5,47 @@ import {
   ManyToOne,
   JoinColumn,
 } from 'typeorm';
-import { Quiz } from '../quiz/quiz.entity';
+import { Quizzes } from '../quiz/quizzes.entity';
 
 @Entity()
 export class Species {
   @PrimaryGeneratedColumn()
   id: number;
 
-  @Column()
-  scientific_name: string;
+  @Column({ name: 'scientific_name' })
+  scientificName: string;
 
-  @Column()
-  common_name: string;
+  @Column({ name: 'common_name' })
+  commonName: string;
 
-  @Column({ nullable: true })
-  image_url: string;
+  @Column({ name: 'image_url', nullable: true })
+  imageUrl: string;
 
   @Column({ nullable: true })
   url: string;
 
-  @Column()
-  user_login: string;
+  @Column({ name: 'user_login' })
+  userLogin: string;
 
   @Column()
   license: string;
 
-  @Column({ nullable: true })
-  taxon_class_name: string;
+  @Column({ name: 'taxon_class_name', nullable: true })
+  taxonClassName: string;
 
-  @Column({ nullable: true })
-  taxon_order_name: string;
+  @Column({ name: 'taxon_order_name', nullable: true })
+  taxonOrderName: string;
 
-  @Column({ nullable: true })
-  taxon_family_name: string;
+  @Column({ name: 'taxon_family_name', nullable: true })
+  taxonFamilyName: string;
 
-  @Column({ nullable: true })
-  taxon_genus_name: string;
+  @Column({ name: 'taxon_genus_name', nullable: true })
+  taxonGenusName: string;
 
-  @Column({ nullable: true })
-  taxon_species_name: string;
+  @Column({ name: 'taxon_species_name', nullable: true })
+  taxonSpeciesName: string;
 
-  @ManyToOne(() => Quiz, (quiz) => quiz.species)
+  @ManyToOne(() => Quizzes, (quizzes) => quizzes.species)
   @JoinColumn({ name: 'quiz_id' })
-  quiz: Quiz;
+  quizzes: Quizzes;
 }

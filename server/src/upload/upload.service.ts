@@ -1,16 +1,17 @@
 import { BadRequestException, Injectable } from '@nestjs/common';
 import { InjectRepository } from '@nestjs/typeorm';
 import { Repository } from 'typeorm';
-import { Quiz } from '../quiz/quiz.entity';
+import { Quizzes } from '../quiz/quizzes.entity';
 import { Species } from '../species/species.entity';
 import * as XLSX from 'xlsx';
 import { FileDataDto } from './dto/file-data.dto';
+import { UpdateQuizDto } from '../quiz/dto/update-quiz-dto';
 
 @Injectable()
 export class UploadService {
   constructor(
-    @InjectRepository(Quiz)
-    private quizRepository: Repository<Quiz>,
+    @InjectRepository(Quizzes)
+    private quizRepository: Repository<Quizzes>,
     @InjectRepository(Species)
     private speciesRepository: Repository<Species>,
   ) {}
@@ -27,10 +28,8 @@ export class UploadService {
 
     const { indexMap, jsonData } = await this.getFileData(file);
 
-    //TODO remove questionType
     const quiz = this.quizRepository.create({
       token: token,
-      question_type: 'both',
     });
 
     await this.quizRepository.save(quiz);
@@ -44,18 +43,18 @@ export class UploadService {
 
         if (license && license.trim()) {
           return this.speciesRepository.create({
-            quiz,
-            user_login: row[indexMap['user_login']],
+            quizzes: quiz,
+            userLogin: row[indexMap['user_login']],
             license: row[indexMap['license']],
             url: row[indexMap['url']],
-            image_url: row[indexMap['image_url']],
-            scientific_name: row[indexMap['scientific_name']],
-            common_name: row[indexMap['common_name']],
-            taxon_class_name: row[indexMap['taxon_class_name']],
-            taxon_order_name: row[indexMap['taxon_order_name']],
-            taxon_family_name: row[indexMap['taxon_family_name']],
-            taxon_genus_name: row[indexMap['taxon_genus_name']],
-            taxon_species_name: row[indexMap['taxon_species_name']],
+            imageUrl: row[indexMap['image_url']],
+            scientificName: row[indexMap['scientific_name']],
+            commonName: row[indexMap['common_name']],
+            taxonClassName: row[indexMap['taxon_class_name']],
+            taxonOrderName: row[indexMap['taxon_order_name']],
+            taxonFamilyName: row[indexMap['taxon_family_name']],
+            taxonGenusName: row[indexMap['taxon_genus_name']],
+            taxonSpeciesName: row[indexMap['taxon_species_name']],
           });
         }
       })
@@ -63,9 +62,14 @@ export class UploadService {
 
     await this.speciesRepository.save(speciesData);
 
+    //TODO create a logic to set maxQuestion
+    const maxQuestion = 10;
+
     return {
       success: true,
       message: 'File processed and data inserted successfully.',
+      maxQuestion,
+      idQuiz: quiz.id,
     };
   }
 
@@ -132,5 +136,17 @@ export class UploadService {
     }
 
     return { indexMap, jsonData };
+  }
+
+  async update(idQuiz: number, data: UpdateQuizDto) {
+    await this.quizRepository.update(idQuiz, {
+      quantityQuestion: data.quantityQuestion,
+      questionType: data.questionType,
+    });
+
+    return {
+      success: true,
+      message: 'Data updated successfully.',
+    };
   }
 }

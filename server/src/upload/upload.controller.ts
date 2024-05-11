@@ -1,7 +1,9 @@
 import {
   Body,
   Controller,
+  Param,
   Post,
+  Put,
   UploadedFile,
   UseInterceptors,
 } from '@nestjs/common';
@@ -9,6 +11,7 @@ import {
 import { FileInterceptor } from '@nestjs/platform-express';
 import { UploadService } from './upload.service';
 import { ApiConsumes } from '@nestjs/swagger';
+import { UpdateQuizDto } from '../quiz/dto/update-quiz-dto';
 
 @Controller('upload')
 export class UploadController {
@@ -26,6 +29,12 @@ export class UploadController {
     @Body('token') token: string,
   ) {
     const result = await this.uploadService.handleFile(file, token);
+    return result;
+  }
+
+  @Put(':idQuiz')
+  async update(@Param('idQuiz') idQuiz: number, @Body() data: UpdateQuizDto) {
+    const result = await this.uploadService.update(idQuiz, data);
     return result;
   }
 }

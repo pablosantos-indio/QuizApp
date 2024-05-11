@@ -2,6 +2,7 @@ import { Module } from '@nestjs/common';
 import { TypeOrmModule } from '@nestjs/typeorm';
 import { UploadModule } from './upload/upload.module';
 import * as dotenv from 'dotenv';
+import { QuizzesModule } from './quiz/quizzes.module';
 
 dotenv.config();
 
@@ -18,6 +19,7 @@ dotenv.config();
       synchronize: true,
     }),
     UploadModule,
+    QuizzesModule,
   ],
   controllers: [],
   providers: [],
