@@ -12,7 +12,11 @@ DROP TABLE IF EXISTS quizzes;
 CREATE TABLE quizzes (
     id INT AUTO_INCREMENT PRIMARY KEY,
     token VARCHAR(255) UNIQUE NOT NULL,
-    question_type ENUM('scientific', 'common', 'both'),
+    export enum QuestionTypeEnum {
+        SCIENTIFIC = 0,
+        COMMON = 1,
+        BOTH = 2,
+    }
     createdAt DATETIME NOT NULL DEFAULT CURRENT_TIMESTAMP
 ) DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci;
 
