@@ -1,10 +1,11 @@
 import React from 'react';
-import FileUpload from './components/FileUpload';  
+import Home from './components/Home';
+// import FileUpload from './components/FileUpload';  
 
 function App() {
   return (
     <div className="App">
-      <FileUpload />  
+      <Home />  
     </div>
   );
 }

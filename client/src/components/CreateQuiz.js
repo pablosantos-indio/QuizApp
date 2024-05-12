@@ -30,7 +30,7 @@ export default function CreateQuiz({ token, setToken, setFile, errorFileUpload, 
         const regex = /^(?=.*[a-zA-Z])(?=.*\d)[a-zA-Z\d]+$/;
         if (!regex.test(newToken)) {
             setErrorCreateToken(true);
-            setErrorMessageCreateToken('Token must include at least one letter and one number and cannot contain special characters or spaces.');
+            setErrorMessageCreateToken('The token must include at least one letter and one number, and it cannot contain special characters or spaces.');
         } else {
             setErrorCreateToken(false);
             setErrorMessageCreateToken('');
@@ -73,7 +73,7 @@ export default function CreateQuiz({ token, setToken, setFile, errorFileUpload, 
             <Box sx={{ display: 'flex', flexDirection: 'column' }}>
                 <TextField
                     id="token-create"
-                    label="Enter the Token"
+                    label="Enter Token"
                     value={token}
                     onChange={handleTokenChange}
                     error={errorCreateToken}
@@ -85,7 +85,7 @@ export default function CreateQuiz({ token, setToken, setFile, errorFileUpload, 
                 <FormControl sx={{ m: 3 }} error={errorFileUpload} variant="standard">
 
                     <FormLabel htmlFor="upload-file" required>
-                        Upload the file here
+                        Upload File
                     </FormLabel>
                     <Button
                         component="label"
@@ -95,7 +95,7 @@ export default function CreateQuiz({ token, setToken, setFile, errorFileUpload, 
                         startIcon={<CloudUploadIcon />}
                         name="upload-file"
                     >
-                        Upload file
+                        Choose File
                         <VisuallyHiddenInput type="file" accept=".csv, .xlsx, .xls" required onChange={handleFileChange} />
                     </Button>
                     <FormHelperText>{errorMessageFileUpload}</FormHelperText>
