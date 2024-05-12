@@ -1,13 +1,20 @@
-import React from 'react';
+import React, { useState } from 'react';
+import axios from 'axios';
 import Box from '@mui/material/Box';
 import Button from '@mui/material/Button';
-import { styled } from '@mui/material/styles';
-import CloudUploadIcon from '@mui/icons-material/CloudUpload';
 import TextField from '@mui/material/TextField';
+import mockQuizzes from '../mock/mockQuizzes.json'; 
+import Alert from '@mui/material/Alert';
 import Stack from '@mui/material/Stack';
-import { FormHelperText, FormControl, FormLabel } from '@mui/material';
+import StepperQuiz from './StepperQuiz';
 
-function StartQuiz(token, setToken, setErrorCreateToken, setErrorMessageCreateToken, errorCreateToken, errorMessageCreateToken) {
+export default function StartQuiz() {
+  const [token, setToken] = useState('');
+  const [errorToken, setErrorToken] = useState(false);
+  const [errorMessageToken, setErrorMessageToken] = useState('');
+  const [errorFetchingQuizzes, setErrorFetchingQuizzes] = useState('');
+  const [quizzes, setQuizzes] = useState([]);
+  const [showForm, setShowForm] = useState(true);
 
 
   const handleTokenChange = (event) => {
@@ -15,56 +22,110 @@ function StartQuiz(token, setToken, setErrorCreateToken, setErrorMessageCreateTo
     setToken(newToken);
 
     const regex = /^(?=.*[a-zA-Z])(?=.*\d)[a-zA-Z\d]+$/;
-    if (!regex.test(newToken)) {
-      setErrorCreateToken(true);
-      setErrorMessageCreateToken('Token must include at least one letter and one number and cannot contain special characters or spaces.');
+    const isValidToken = regex.test(newToken) && newToken !== '';
+
+    if (!isValidToken) {
+      setErrorToken(true);
+      setErrorMessageToken('Token must include at least one letter and one number and cannot be empty.');
     } else {
-      setErrorCreateToken(false);
-      setErrorMessageCreateToken('');
+      setErrorToken(false);
+      setErrorMessageToken('');
+    }
+
+    if (newToken === '') {
+      setErrorToken(false);
+      setErrorMessageToken('');
     }
   };
 
- 
+  const handleStartQuiz = async () => {
+    if (token && !errorToken) {
+      try {
+        const shuffledQuizzes = shuffle(mockQuizzes);
+        const selectedQuizzes = shuffledQuizzes.slice(0, 10);
+        setQuizzes(selectedQuizzes);
+        setShowForm(false);
+      } catch (error) {
+        console.error('Error fetching quizzes:', error);
+        setErrorFetchingQuizzes('Error fetching quizzes. Please check your token.');
+      }
+    } else {
+      if (!token) {
+        setErrorToken(true);
+        setErrorMessageToken("Please provide a valid token.");
+      }
+    }
+  };
+  function shuffle(array) {
+    for (let i = array.length - 1; i > 0; i--) {
+      const j = Math.floor(Math.random() * (i + 1));
+      [array[i], array[j]] = [array[j], array[i]];
+    }
+    return array;
+  }
+
+  const resetQuiz = () => {
+    setToken('');
+    setErrorToken(false);
+    setErrorMessageToken('');
+    setErrorFetchingQuizzes('');
+    setQuizzes([]);
+    setShowForm(true);
+  };
 
   return (
     <Stack spacing={{ xs: 3, sm: 6 }} useFlexGap>
-      <Box
-        sx={{
-          display: 'flex',
-          flexDirection: 'column',
-          gap: 2,
-        }}
-      >
+      {errorFetchingQuizzes && <Alert severity="error">{errorFetchingQuizzes}</Alert>}
+      {showForm ? (
         <Box
           sx={{
             display: 'flex',
             flexDirection: 'column',
-            justifyContent: 'flex-start',
-            gap: 4,
-            p: 3,
-            width: '100%',
-            borderRadius: '20px',
-            border: '1px solid ',
-            borderColor: 'divider',
-            backgroundColor: 'background.paper',
-            boxShadow: '0px 4px 8px rgba(0, 0, 0, 0.05)',
+            gap: 2,
+            maxWidth: "25%",
+            margin: 'auto', 
+            alignItems: 'center',
+            justifyContent: 'center',
           }}
         >
-          <Box sx={{ display: 'flex', flexDirection: 'column' }}>
-            <TextField
-              id="token-create"
-              label="Enter the Token"
-              value={token}
-              onChange={handleTokenChange}
-              error={errorCreateToken}
-              helperText={errorMessageCreateToken}
-            />
+          <Box
+            sx={{
+              display: 'flex',
+              flexDirection: 'column',
+              justifyContent: 'flex-start',
+              gap: 4,
+              p: 3,
+              borderRadius: '20px',
+              border: '1px solid ',
+              borderColor: 'divider',
+              backgroundColor: 'background.paper',
+              boxShadow: '0px 4px 8px rgba(0, 0, 0, 0.05)',
+            }}
+          >
+            <Box > 
+              <TextField
+                id="token-create"
+                label="Enter Token"
+                value={token}
+                onChange={handleTokenChange}
+                error={errorToken}
+                helperText={errorToken ? errorMessageToken : ''}
+                
+              />
+            </Box>
+            <Button
+              variant="contained"
+              onClick={handleStartQuiz}
+            >
+              Start Quiz
+            </Button>
           </Box>
-         
         </Box>
-      </Box>
+
+
+      ) : (
+          <StepperQuiz quizzes={quizzes} resetQuiz={resetQuiz} />
+      )}
     </Stack>
   );
 }
-
-export default StartQuiz;
