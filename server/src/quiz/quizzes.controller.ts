@@ -1,4 +1,4 @@
-import { Body, Controller, Get } from '@nestjs/common';
+import { Body, Controller, Post } from '@nestjs/common';
 import { QuizzesService } from './quizzes.service';
 import { StartQuizDto } from './dto/start-quiz-dto';
 
@@ -6,7 +6,7 @@ import { StartQuizDto } from './dto/start-quiz-dto';
 export class QuizzesController {
   constructor(private readonly quizzesService: QuizzesService) {}
 
-  @Get()
+  @Post('/start')
   async start(@Body() dto: StartQuizDto) {
     const result = await this.quizzesService.start(dto);
     return result;

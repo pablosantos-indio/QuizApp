@@ -92,7 +92,8 @@ export class UploadService {
     }
 
     // Verify if the token is valid
-    if (!token.match(/[A-Za-z].[0-9]|[0-9].[A-Za-z]/)) {
+    // if (!token.match(/[A-Za-z].[0-9]|[0-9].[A-Za-z]/)) {
+    if (!token.match(/[A-Za-z][0-9]/)) {
       console.error('Invalid token format');
       throw new BadRequestException(
         'Token must include at least one letter and one number and cannot contain special characters or spaces.',

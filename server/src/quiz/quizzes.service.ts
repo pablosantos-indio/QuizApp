@@ -37,7 +37,7 @@ export class QuizzesService {
     let randomNumber;
 
     for (let i = 0; i < quiz.quantityQuestion - 1; i++) {
-      for (let j = 0; j < 4; j++) {
+      for (let j = 0; j < 5; j++) {
         if (correctAnswerIndex) {
           answer = {
             description: this.getAnswerDescription(
@@ -91,11 +91,11 @@ export class QuizzesService {
   private getQuestionDescription(questionType: number) {
     switch (questionType) {
       case QuestionTypeEnum.SCIENTIFIC:
-        return 'What is the scientific name of this animal?';
+        return 'What is the correct scientific name?';
       case QuestionTypeEnum.COMMON:
-        return 'What is the common name of this animal?';
+        return 'What is the correct common name?';
       case QuestionTypeEnum.BOTH:
-        return 'What is the scientific and common name of this animal?';
+        return 'What is the correct scientific and common name?';
       default:
         throw new NotFoundException('Question type not found.');
     }
