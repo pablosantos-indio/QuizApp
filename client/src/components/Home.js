@@ -1,4 +1,5 @@
-import * as React from 'react';
+import {QuizService} from "../services/quiz.service";
+import React, { useEffect } from 'react';
 import AppBar from '@mui/material/AppBar';
 import Box from '@mui/material/Box';
 import CssBaseline from '@mui/material/CssBaseline';
@@ -24,6 +25,16 @@ export default function Home(props) {
   const { window } = props;
   const [mobileOpen, setMobileOpen] = React.useState(false);
   const [selectedItem, setSelectedItem] = React.useState('Professor');
+
+  useEffect(() => {
+    QuizService.start('XpT16')
+        .then((response) => {
+            console.log(response);
+        })
+        .catch((error) => {
+           console.log(error);
+        })
+}, [])
 
   const handleDrawerClose = () => {
     setMobileOpen(false);

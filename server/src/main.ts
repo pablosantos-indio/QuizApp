@@ -19,9 +19,9 @@ async function bootstrap() {
 
   // CORS configuration for development
   app.enableCors({
-    origin: process.env.CORS_ORIGIN, // Using environment variable
-    methods: 'GET,POST,PUT,DELETE',
-    allowedHeaders: 'Content-Type,Authorization',
+    maxAge: 3600,
+    allowedHeaders: ['token', 'content-type'],
+    exposedHeaders: ['Content-Disposition'],
   });
 
   // Setup the route to access the Swagger UI
