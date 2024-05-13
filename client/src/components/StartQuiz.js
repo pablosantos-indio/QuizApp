@@ -82,10 +82,9 @@ export default function StartQuiz() {
             display: 'flex',
             flexDirection: 'column',
             gap: 2,
-            maxWidth: "25%",
-            margin: 'auto', 
+            width: '100%',
+            padding: '0 20px', 
             alignItems: 'center',
-            justifyContent: 'center',
           }}
         >
           <Box
