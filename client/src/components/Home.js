@@ -68,7 +68,7 @@ export default function Home(props) {
   const renderContent = () => {
     if (selectedItem === 'Professor') {
       return (
-        <ResponsiveStepper />
+        <ResponsiveStepper selectedItem={selectedItem} />
       );
     } else if (selectedItem === 'Student') {
       return (
