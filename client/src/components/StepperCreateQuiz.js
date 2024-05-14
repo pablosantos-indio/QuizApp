@@ -7,6 +7,7 @@ import StepLabel from '@mui/material/StepLabel';
 import Typography from '@mui/material/Typography';
 import CreateQuiz from './CreateQuiz';
 import QuizConfiguration from './QuizConfiguration';
+import { QuizService } from "../services/quiz.service";
 
 const steps = ['Create Token and FileUpload', 'Quiz Configuration'];
 
@@ -24,32 +25,32 @@ export default function StepperCreateQuiz() {
   const [errorFileUpload, setErrorFileUpload] = useState(false);
   const [errorMessageFileUpload, setErrorMessageFileUpload] = useState('');
 
-  const [numberQuestions, setNumberQuestions] = useState('');
-  const [typesAnswers, setTypesAnswers] = useState('both');
+  const [quantityQuestion, setQuantityQuestion] = useState('');
+  const [maxNumberQuestions, setMaxNumberQuestions] = useState('');
+  const [idQuiz, setIdQuiz] = useState('');
+  const [questionType, setQuestionType] = useState('both');
 
 
   const handleNext = async () => {
     if (activeStep === 0) {
       if (token && file) {
-        // const formData = new FormData();
-        // formData.append('file', file);
-        // formData.append('token', token);
+        const formData = new FormData();
+        formData.append('file', file);
+        formData.append('token', token);
 
-        // try {
-        //   const response = await axios.post(`${process.env.REACT_APP_API_URL}/upload`, formData, {
-        //     headers: {
-        //       'Content-Type': 'multipart/form-data'
-        //     }
-        //   });
-        //   if (response.data.success) {
-        //     setActiveStep((prevActiveStep) => prevActiveStep + 1);
-        //   } else {
-        //     setErrorMessage(response.data.message || 'An error occurred while uploading the file.');
-        //   }
-        // } catch (error) {
-        //   setErrorMessage(error.response.data.message || 'An error occurred while uploading the file.');
-        // }
-        setActiveStep((prevActiveStep) => prevActiveStep + 1);
+        QuizService.create(formData)
+          .then((response) => {
+            if (response.success) {
+              setMaxNumberQuestions(response.maxQuestion); 
+              setIdQuiz(response.idQuiz)
+              setActiveStep((prevActiveStep) => prevActiveStep + 1);
+            } else {
+              setErrorMessage(response.message || 'An error occurred while uploading the file.');
+            }          })
+          .catch((error) => {
+            console.log(error);
+          })
+        
         setErrorMessage('');
       } else if(!file && !token) {
         setErrorMessageFileUpload('Need to upload the file');
@@ -83,27 +84,42 @@ export default function StepperCreateQuiz() {
     setFile(null);
     setErrorMessageFileUpload('');
     setErrorFileUpload(false)
-    setNumberQuestions('');
-    setTypesAnswers('both');
+    setQuantityQuestion('');
+    setQuestionType('both');
     setActiveStep(0);
   };
 
   
   const handleCreate = () => {
-    if (typesAnswers && numberQuestions) {
-      setActiveStep((prevActiveStep) => prevActiveStep + 1);
-    } else if (!numberQuestions && !typesAnswers ) {
+    if (questionType && quantityQuestion) {
+      const quantityQuestionNumber = parseInt(quantityQuestion, 10);
+
+      console.log(questionType, quantityQuestionNumber)
+      
+      QuizService.update(idQuiz, quantityQuestionNumber, questionType)
+        .then((response) => {
+          if (response.success) {
+            console.log(response)
+            setActiveStep((prevActiveStep) => prevActiveStep + 1);
+          } else {
+            setErrorMessage(response.message || 'An error occurred while uploading the file.');
+          }
+        })
+        .catch((error) => {
+          console.log(error);
+        })
+    } else if (!quantityQuestion && !questionType ) {
       setErrorMessageNumberQuestions('Please provide a number.');
       setErrorMessageTypesAnswers('Please select an option.')
       setErrorNumberQuestions(true)
       setErrorTypesAnswers(true)
 
-    } else if (!numberQuestions ) {
+    } else if (!quantityQuestion ) {
       setErrorNumberQuestions(true)
       setErrorTypesAnswers(false)
       setErrorMessageTypesAnswers('')
       setErrorMessageNumberQuestions('Please provide a number.');
-    } else if (!typesAnswers) {
+    } else if (!questionType) {
       setErrorTypesAnswers(true)
       setErrorNumberQuestions(false)
       setErrorMessageTypesAnswers('Please select an option.')
@@ -154,10 +170,11 @@ export default function StepperCreateQuiz() {
               />
             ) : activeStep === 1 ? (
                   <QuizConfiguration
-                    numberQuestions={numberQuestions}
-                    typesAnswers={typesAnswers}
-                    setNumberQuestions={setNumberQuestions}
-                    setTypesAnswers={setTypesAnswers}
+                    maxNumberQuestions={maxNumberQuestions}
+                    quantityQuestion={quantityQuestion}
+                    questionType={questionType}
+                    setQuantityQuestion={setQuantityQuestion}
+                    setQuestionType={setQuestionType}
                     errorNumberQuestions={errorNumberQuestions}
                     errorTypesAnswers={errorTypesAnswers}
                     errorMessageNumberQuestions={errorMessageNumberQuestions}

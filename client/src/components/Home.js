@@ -26,16 +26,6 @@ export default function Home(props) {
   const [mobileOpen, setMobileOpen] = React.useState(false);
   const [selectedItem, setSelectedItem] = React.useState('Professor');
 
-  useEffect(() => {
-    QuizService.start('XpT16')
-        .then((response) => {
-            console.log(response);
-        })
-        .catch((error) => {
-           console.log(error);
-        })
-}, [])
-
   const handleDrawerClose = () => {
     setMobileOpen(false);
   };

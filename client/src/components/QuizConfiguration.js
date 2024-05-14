@@ -7,28 +7,39 @@ import Stack from '@mui/material/Stack';
 import Radio from '@mui/material/Radio';
 import TextField from '@mui/material/TextField';
 import { FormHelperText, FormControl } from '@mui/material';
+import { QuestionTypeEnum } from '../enum/question-type-enum';
 
-export default function QuizConfiguration({ numberQuestions, typesAnswers, setNumberQuestions, setTypesAnswers, errorTypesAnswers, errorNumberQuestions, errorMessageNumberQuestions,errorMessageTypesAnswers }) {
-  
+export default function QuizConfiguration({ maxNumberQuestions, quantityQuestion, questionType, setQuantityQuestion, setQuestionType, errorTypesAnswers, errorNumberQuestions, errorMessageNumberQuestions, errorMessageTypesAnswers }) {
 
-  const maxNumberQuestions = 10;
+  const getQuestionTypeLabel = (type) => {
+    switch (type) {
+      case QuestionTypeEnum.SCIENTIFIC:
+        return 'Scientific Name';
+      case QuestionTypeEnum.COMMON:
+        return 'Common Name';
+      case QuestionTypeEnum.BOTH:
+        return 'Both';
+      default:
+        return '';
+    }
+  };
 
   const handleNumberQuestionsChange = (event) => {
     let value = event.target.value.replace(/\D/g, '');
     const maxDigits = maxNumberQuestions.toString().length;
-    value = value.slice(0, maxDigits); 
+    value = value.slice(0, maxDigits);
 
     if (parseInt(value) <= 0) {
-      value = ''; 
+      value = '';
     } else if (parseInt(value) > maxNumberQuestions) {
-      value = maxNumberQuestions.toString(); 
+      value = maxNumberQuestions.toString();
     }
 
-    setNumberQuestions(value);
+    setQuantityQuestion(value);
   };
 
   const handleTypesAnswersChange = (event) => {
-    setTypesAnswers(event.target.value);
+    setQuestionType(parseInt(event.target.value));
   };
 
   return (
@@ -62,7 +73,7 @@ export default function QuizConfiguration({ numberQuestions, typesAnswers, setNu
               required
               label="Number of Questions"
               max={maxNumberQuestions}
-              value={numberQuestions}
+              value={quantityQuestion}
               onChange={handleNumberQuestionsChange}
               helperText={errorMessageNumberQuestions}
             />
@@ -77,14 +88,22 @@ export default function QuizConfiguration({ numberQuestions, typesAnswers, setNu
               <RadioGroup
                 aria-labelledby="types-answers-label"
                 name="types-answers"
-                value={typesAnswers}
+                value={questionType}
                 onChange={handleTypesAnswersChange}
                 required
               >
-                <FormControlLabel value="both" control={<Radio />} label="Both" />
-                <FormControlLabel value="commonName" control={<Radio />} label="Common Name" />
-                <FormControlLabel value="scientificName" control={<Radio />} label="Scientific Name" />
+                {Object.keys(QuestionTypeEnum)
+                  .filter((key) => !isNaN(Number(QuestionTypeEnum[key])))
+                  .map((key) => (
+                    <FormControlLabel
+                      key={QuestionTypeEnum[key]}
+                      value={QuestionTypeEnum[key]}
+                      control={<Radio />}
+                      label={getQuestionTypeLabel(QuestionTypeEnum[key])}
+                    />
+                  ))}
               </RadioGroup>
+
               <FormHelperText>{errorMessageTypesAnswers}</FormHelperText>
             </FormControl>
           </Box>

@@ -19,9 +19,8 @@ async function bootstrap() {
 
   // CORS configuration for development
   app.enableCors({
-    maxAge: 3600,
-    allowedHeaders: ['token', 'content-type'],
-    exposedHeaders: ['Content-Disposition'],
+    origin: 'http://localhost:3000',
+    credentials: true,
   });
 
   // Setup the route to access the Swagger UI
