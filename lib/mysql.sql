@@ -12,8 +12,8 @@ DROP TABLE IF EXISTS quizzes;
 CREATE TABLE quizzes (
                          id INT AUTO_INCREMENT PRIMARY KEY,
                          token VARCHAR(255) UNIQUE NOT NULL,
-                         -- SCIENTIFIC = 0, COMMON = 1, BOTH = 2, default = 2
-                         question_type ENUM('0', '1', '2') NOT NULL, 
+                         -- SCIENTIFIC = 1, COMMON = 2, BOTH = 3, default = 3
+                         question_type ENUM('1', '2', '3') NOT NULL, 
                          quantity_question INT,
                          createdAt DATETIME NOT NULL DEFAULT CURRENT_TIMESTAMP
 ) DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci;

@@ -1,9 +1,8 @@
-import { AnswerDto } from './answer-dto';
-
 export class QuestionDto {
   description: string;
-  answers: AnswerDto[];
+  answers: string[];
   imageUrl: string;
   url: string;
   userLogin: string;
+  correctAnswer: string;
 }

@@ -1,12 +1,12 @@
 import { api } from './api'
 
-const start = async (token: string) => {
+const start = async (token) => {
   const response = await api.post('quizzes/start', { token })
 
   return response.data
 }
 
-const create = async (formData: FormData) => {
+const create = async (formData) => {
   const response = await api.post('/upload', formData, {
     headers: {
       'Content-Type': 'multipart/form-data'
@@ -16,7 +16,7 @@ const create = async (formData: FormData) => {
   return response.data
 }
 
-const update = async (idQuiz: number, quantityQuestion: number, questionType: number) => {
+const update = async (idQuiz, quantityQuestion, questionType) => {
   const updateData = {
     quantityQuestion: quantityQuestion,
     questionType: questionType

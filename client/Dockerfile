@@ -10,6 +10,9 @@ COPY package*.json ./
 # Install Node.js dependencies including React scripts
 RUN npm install
 
+# Install the project dependencies
+# RUN npm install --legacy-peer-deps
+
 # Bundle the app source inside the Docker image
 COPY . .
 

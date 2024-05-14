@@ -6,7 +6,7 @@ import { Species } from '../species/species.entity';
 import { QuestionTypeEnum } from './enum/question-type-enum';
 import { StartQuizDto } from './dto/start-quiz-dto';
 import { QuestionDto } from '../utils/dto/quesiton-dto';
-import { AnswerDto } from '../utils/dto/answer-dto';
+
 @Injectable()
 export class QuizzesService {
   constructor(
@@ -29,24 +29,23 @@ export class QuizzesService {
     }
 
     const questions: QuestionDto[] = [];
-    let answers: AnswerDto[] = [];
-    let answer: AnswerDto;
+    let answers: string[] = [];
+    let answer: string;
     let correctAnswerIndex = true;
 
     let selectedIndices = [];
     let randomNumber;
+    let correctAnswer;
 
     for (let i = 0; i < quiz.quantityQuestion - 1; i++) {
       for (let j = 0; j < 5; j++) {
         if (correctAnswerIndex) {
-          answer = {
-            description: this.getAnswerDescription(
-              quiz.questionType,
-              quiz.species[i],
-            ),
-            isCorrect: true,
-          };
+          answer = this.getAnswerDescription(
+            quiz.questionType,
+            quiz.species[i],
+          );
 
+          correctAnswer = answer;
           correctAnswerIndex = false;
         } else {
           do {
@@ -55,13 +54,10 @@ export class QuizzesService {
 
           selectedIndices.push(randomNumber);
 
-          answer = {
-            description: this.getAnswerDescription(
-              quiz.questionType,
-              quiz.species[randomNumber],
-            ),
-            isCorrect: false,
-          };
+          answer = this.getAnswerDescription(
+            quiz.questionType,
+            quiz.species[i],
+          );
         }
 
         answers.push(answer);
@@ -75,6 +71,7 @@ export class QuizzesService {
         imageUrl: quiz.species[i].imageUrl,
         url: quiz.species[i].url,
         userLogin: quiz.species[i].userLogin,
+        correctAnswer,
       });
 
       answers = [];
