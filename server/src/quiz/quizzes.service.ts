@@ -47,6 +47,7 @@ export class QuizzesService {
 
           correctAnswer = answer;
           correctAnswerIndex = false;
+          selectedIndices.push(i);
         } else {
           do {
             randomNumber = Math.floor(Math.random() * quiz.species.length);
@@ -56,7 +57,7 @@ export class QuizzesService {
 
           answer = this.getAnswerDescription(
             quiz.questionType,
-            quiz.species[i],
+            quiz.species[randomNumber],
           );
         }
 

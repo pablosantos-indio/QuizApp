@@ -45,7 +45,7 @@ export default function StepperCreateQuizMobile() {
         errorMessageFileUpload={errorMessageFileUpload}
         setErrorMessageFileUpload={setErrorMessageFileUpload}
       />,
-      actionButtonLabel: 'Next'
+      actionButtonLabel: 'Send'
     },
     {
       label: 'Quiz Configuration',
@@ -62,8 +62,8 @@ export default function StepperCreateQuizMobile() {
       actionButtonLabel: 'Create'
     },
     {
-      label: 'Quiz created successfully',
-      actionButtonLabel: 'Reset'
+      label: 'Quiz generated successfully.',
+      actionButtonLabel: 'Home'
     },
   ];
   const maxSteps = steps.length;
@@ -146,7 +146,7 @@ export default function StepperCreateQuizMobile() {
           color: theme.palette.primary,
         }}
       >
-        {steps[activeStep].label === 'Quiz created successfully' ? (
+        {steps[activeStep].label === 'Quiz generated successfully.' ? (
           <Box sx={{ backgroundColor: 'green', borderRadius: '10px', }}>
             <Typography variant="h4" sx={{ textAlign: 'center', color: "white" }}>{steps[activeStep].label}
             </Typography>
@@ -186,7 +186,7 @@ export default function StepperCreateQuizMobile() {
           activeStep === maxSteps - 1 ? (
             <Button size="small" onClick={handleReset}>
               <KeyboardArrowLeft />
-              Reset
+              Home
             </Button>
           ) : (
             <Button size="small" onClick={handleBack} disabled={activeStep === 0}>

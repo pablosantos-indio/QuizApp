@@ -2,11 +2,10 @@ import React, { useState } from 'react';
 import Box from '@mui/material/Box';
 import Button from '@mui/material/Button';
 import TextField from '@mui/material/TextField';
-import mockQuizzes from '../mock/mockQuizzes.json'; 
 import Alert from '@mui/material/Alert';
 import Stack from '@mui/material/Stack';
 import StepperQuiz from './StepperQuiz';
-
+import { QuizService } from '../services/quiz.service';
 export default function StartQuiz() {
   const [token, setToken] = useState('');
   const [errorToken, setErrorToken] = useState(false);
@@ -20,7 +19,8 @@ export default function StartQuiz() {
     const newToken = event.target.value;
     setToken(newToken);
 
-    const regex = /^(?=.*[a-zA-Z])(?=.*\d)[a-zA-Z\d]+$/;
+    // const regex = /^(?=.[a-zA-Z])(?=.\d)[a-zA-Z\d]+$/;
+    const regex = /[A-Za-z][0-9]/;
     const isValidToken = regex.test(newToken) && newToken !== '';
 
     if (!isValidToken) {
@@ -39,15 +39,20 @@ export default function StartQuiz() {
 
   const handleStartQuiz = async () => {
     if (token && !errorToken) {
-      try {
-        const shuffledQuizzes = shuffle(mockQuizzes);
-        const selectedQuizzes = shuffledQuizzes.slice(0, 10);
-        setQuizzes(selectedQuizzes);
-        setShowForm(false);
-      } catch (error) {
-        console.error('Error fetching quizzes:', error);
-        setErrorFetchingQuizzes('Error fetching quizzes. Please check your token.');
-      }
+      QuizService.start(token)
+        .then((response) => {
+          if (response.success) {
+            setQuizzes(response.questions);
+            setShowForm(false);
+
+          }
+        })
+        .catch((error) => {
+          console.log(error);
+          setErrorFetchingQuizzes('Error fetching quizzes. Please check your token.');
+
+        })
+      
     } else {
       if (!token) {
         setErrorToken(true);
@@ -55,13 +60,6 @@ export default function StartQuiz() {
       }
     }
   };
-  function shuffle(array) {
-    for (let i = array.length - 1; i > 0; i--) {
-      const j = Math.floor(Math.random() * (i + 1));
-      [array[i], array[j]] = [array[j], array[i]];
-    }
-    return array;
-  }
 
   const resetQuiz = () => {
     setToken('');

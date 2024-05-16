@@ -46,12 +46,12 @@ export default function StepperQuiz({ quizzes, resetQuiz }) {
   const quizArray = quizzes;
 
   const steps = quizArray.map((quiz) => ({
-    imageUrl: quiz.image_url,
-    question: quiz.question,
-    userLogin: quiz.user_login,
+    imageUrl: quiz.imageUrl,
+    description: quiz.description,
+    userLogin: quiz.userLogin,
     url: quiz.url,
-    correctAnswer: quiz.correct_answer,
-    alternatives: quiz.alternatives
+    correctAnswer: quiz.correctAnswer,
+    answers: quiz.answers
   }));
 
   const maxSteps = steps.length;
@@ -120,9 +120,9 @@ export default function StepperQuiz({ quizzes, resetQuiz }) {
   const renderResultMessage = () => {
     const { correct, incorrect } = calculateScore();
     if (correct > incorrect) {
-      return <Typography sx={{ color: "green" }} variant="h6">Congratulations! You got more answers right. Keep it up!</Typography>;
+      return <Typography sx={{ color: "green" }} variant="h6">Congratulations!</Typography>;
     } else {
-      return <Typography sx={{ color: "yellow" }} variant="h6">Keep studying. You can improve!</Typography>;
+      return <Typography sx={{ color: "yellow" }} variant="h6">Keep studying!</Typography>;
     }
   };
   
@@ -188,17 +188,18 @@ export default function StepperQuiz({ quizzes, resetQuiz }) {
         >
           <CloseIcon />
         </IconButton>
-        <DialogContent dividers>
-          <Typography gutterBottom>
-            Correct Answers Count: {calculateScore().correct}
-          </Typography>
-          <Typography gutterBottom>
-            Incorrect Answers Count: {calculateScore().incorrect}
-          </Typography>
-          <Typography gutterBottom>
-            {renderResultMessage()}
-          </Typography>
-        </DialogContent>
+          <DialogContent dividers>
+            <Box >
+              Correct: {calculateScore().correct}
+            </Box>
+            <Box >
+              Incorrect: {calculateScore().incorrect}
+            </Box>
+            <Box >
+              {renderResultMessage()}
+            </Box>
+          </DialogContent>
+
         <DialogActions>
           <Button autoFocus onClick={() => {resetQuiz(); handleClose();}}>
             Back to Start
@@ -231,40 +232,45 @@ export default function StepperQuiz({ quizzes, resetQuiz }) {
         </CardMedia>
         <CardContent>
           <Typography gutterBottom variant="h5" component="div">
-            {steps[activeStep].question}
+            {steps[activeStep].description}
           </Typography>
           <Box sx={{ display: 'flex', justifyContent: 'flex-start', width: 400 }}>
             <FormControl>
-              <RadioGroup
-                aria-labelledby={`alternative-radio-group-label-${activeStep}`}
-                name={`alternative-radio-group-label-${activeStep}`}
-                value={selectedAnswer}
-                onChange={handleAnswerSelect}
-              >
-                {Object.entries(steps[activeStep].alternatives).map(([key, value]) => {
-                  const isSelected = selectedAnswersList.some(
-                    (selection) => selection.step === activeStep && selection.answer === value
-                  );
-                  const isCorrectSelection = value === correctAnswer;
-                  const isIncorrectSelection = isSelected && !isCorrectSelection;
+                <RadioGroup
+                  aria-labelledby={`alternative-radio-group-label-${activeStep}`}
+                  name={`alternative-radio-group-label-${activeStep}`}
+                  value={selectedAnswer}
+                  onChange={handleAnswerSelect}
+                >
+                  {steps[activeStep]?.answers?.length > 0 ? (
+                    steps[activeStep].answers.map((answer, index) => {
+                      const isSelected = selectedAnswersList.some(
+                        (selection) => selection.step === activeStep && selection.answer === answer
+                      );
+                      const isCorrectSelection = answer === correctAnswer;
+                      const isIncorrectSelection = isSelected && !isCorrectSelection;
 
-                  return (
-                    <FormControlLabel
-                      key={key}
-                      value={value}
-                      control={<Radio />}
-                      label={value}
-                      sx={{
-                        color:
-                          isCorrectSelection ? "green" :
-                            isIncorrectSelection ? "red" :
-                              isSelected ? "orange" : 
-                                undefined,
-                      }}
-                    />
-                  );
-                })}
-              </RadioGroup>
+                      return (
+                        <FormControlLabel
+                          key={index}
+                          value={answer}
+                          control={<Radio />}
+                          label={answer}
+                          sx={{
+                            color:
+                              isCorrectSelection ? "green" :
+                                isIncorrectSelection ? "red" :
+                                  isSelected ? "orange" :
+                                    undefined,
+                          }}
+                        />
+                      );
+                    })
+                  ) : (
+                    <Typography>No answers available</Typography>
+                  )}
+                </RadioGroup>
+
             </FormControl>
           </Box>
         </CardContent>
@@ -301,7 +307,7 @@ export default function StepperQuiz({ quizzes, resetQuiz }) {
                   onClick={handleNext}
                   disabled={selectedAnswer === null || activeStep === maxSteps - 1}
                 >
-                  Next
+                  Send
                   {theme.direction === 'rtl' ? (
                     <KeyboardArrowLeft />
                   ) : (

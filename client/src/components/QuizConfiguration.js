@@ -7,22 +7,8 @@ import Stack from '@mui/material/Stack';
 import Radio from '@mui/material/Radio';
 import TextField from '@mui/material/TextField';
 import { FormHelperText, FormControl } from '@mui/material';
-import { QuestionTypeEnum } from '../enum/question-type-enum';
 
 export default function QuizConfiguration({ maxNumberQuestions, quantityQuestion, questionType, setQuantityQuestion, setQuestionType, errorTypesAnswers, errorNumberQuestions, errorMessageNumberQuestions, errorMessageTypesAnswers }) {
-
-  const getQuestionTypeLabel = (type) => {
-    switch (type) {
-      case QuestionTypeEnum.SCIENTIFIC:
-        return 'Scientific Name';
-      case QuestionTypeEnum.COMMON:
-        return 'Common Name';
-      case QuestionTypeEnum.BOTH:
-        return 'Both';
-      default:
-        return '';
-    }
-  };
 
   const handleNumberQuestionsChange = (event) => {
     let value = event.target.value.replace(/\D/g, '');
@@ -80,28 +66,33 @@ export default function QuizConfiguration({ maxNumberQuestions, quantityQuestion
           </Box>
 
           <Box>
-            <FormControl sx={{ m: 3 }} error={errorTypesAnswers} variant="standard">
+              <FormControl sx={{ m: 3 }} error={errorTypesAnswers} variant="standard">
 
-              <FormLabel htmlFor="types-answers" required>
-                Types of Answers
-              </FormLabel>
-              <RadioGroup
-                aria-labelledby="types-answers-label"
-                name="types-answers"
-                value={questionType}
-                onChange={handleTypesAnswersChange}
-                required
-              >
-                {Object.keys(QuestionTypeEnum)
-                  .filter((key) => !isNaN(Number(QuestionTypeEnum[key])))
-                  .map((key) => (
-                    <FormControlLabel
-                      key={QuestionTypeEnum[key]}
-                      value={QuestionTypeEnum[key]}
+                  <FormLabel htmlFor="types-answers" required>
+                      Types of Answers
+                  </FormLabel>
+                  <RadioGroup
+                      aria-labelledby="types-answers-label"
+                      name="types-answers"
+                      value={questionType}
+                      onChange={handleTypesAnswersChange}
+                      required
+                  >
+                  <FormControlLabel
+                      value="1"
                       control={<Radio />}
-                      label={getQuestionTypeLabel(QuestionTypeEnum[key])}
-                    />
-                  ))}
+                      label="Scientific Name"
+                  />
+                  <FormControlLabel
+                      value="2"
+                      control={<Radio />}
+                      label="Common Name"
+                  />
+                  <FormControlLabel
+                      value="3"
+                      control={<Radio />}
+                      label="Both"
+                  />
               </RadioGroup>
 
               <FormHelperText>{errorMessageTypesAnswers}</FormHelperText>

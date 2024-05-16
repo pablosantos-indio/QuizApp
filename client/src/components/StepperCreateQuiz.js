@@ -9,7 +9,7 @@ import CreateQuiz from './CreateQuiz';
 import QuizConfiguration from './QuizConfiguration';
 import { QuizService } from "../services/quiz.service";
 
-const steps = ['Create Token and FileUpload', 'Quiz Configuration'];
+const steps = ['Create token and file upload', 'Quiz configuration'];
 
 export default function StepperCreateQuiz() {
   const [activeStep, setActiveStep] = useState(0);
@@ -141,12 +141,12 @@ export default function StepperCreateQuiz() {
         <React.Fragment>
           <Box sx={{ display: 'flex', flexDirection: 'column', alignItems: 'center', justifyContent: 'center', p:"80px" }}>
             <Box sx={{ backgroundColor: 'green', borderRadius: '10px', padding: '20px' }}>
-              <Typography variant="h4" sx={{ textAlign: 'center', color:"white" }}>Quiz created successfully</Typography>
+              <Typography variant="h4" sx={{ textAlign: 'center', color:"white" }}>Quiz generated successfully.</Typography>
             </Box>
 
             <Box sx={{ display: 'flex', flexDirection: 'row', pt: 2 }}>
               <Box sx={{ flex: '1 1 auto' }} />
-              <Button onClick={handleReset} variant="contained" color="primary">Reset</Button>
+              <Button onClick={handleReset} variant="contained" color="primary">Home</Button>
             </Box>
           </Box>
         </React.Fragment>
@@ -191,7 +191,7 @@ export default function StepperCreateQuiz() {
               {activeStep === steps.length - 1 ? (
                 <Button onClick={handleCreate}>Create</Button>
               ) : (
-                <Button onClick={handleNext}>Next</Button>
+                <Button onClick={handleNext}>Send</Button>
               )}
             </Box>
           </Box>

@@ -27,10 +27,13 @@ export default function CreateQuiz({ token, setToken, setFile, errorFileUpload, 
         const newToken = event.target.value;
         setToken(newToken);
 
-        const regex = /^(?=.*[a-zA-Z])(?=.*\d)[a-zA-Z\d]+$/;
+        const regex = /[A-Za-z][0-9]/;
         if (!regex.test(newToken)) {
             setErrorCreateToken(true);
-            setErrorMessageCreateToken('The token must include at least one letter and one number, and it cannot contain special characters or spaces.');
+            setErrorMessageCreateToken(
+                'Token needs a letter and a number,\n' +
+                'no special characters or spaces.'
+            );
         } else {
             setErrorCreateToken(false);
             setErrorMessageCreateToken('');
