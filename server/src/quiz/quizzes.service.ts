@@ -6,6 +6,7 @@ import { Species } from '../species/species.entity';
 import { QuestionTypeEnum } from './enum/question-type-enum';
 import { StartQuizDto } from './dto/start-quiz-dto';
 import { QuestionDto } from '../utils/dto/quesiton-dto';
+import { shuffle } from '../utils/quiz.utils';
 
 @Injectable()
 export class QuizzesService {
@@ -68,11 +69,12 @@ export class QuizzesService {
 
       questions.push({
         description: this.getQuestionDescription(quiz.questionType),
-        answers,
+        answers: shuffle(answers),
         imageUrl: quiz.species[i].imageUrl,
         url: quiz.species[i].url,
         userLogin: quiz.species[i].userLogin,
         correctAnswer,
+        license: quiz.species[i].license,
       });
 
       answers = [];
@@ -82,7 +84,7 @@ export class QuizzesService {
     return {
       success: true,
       message: 'File processed and data inserted successfully.',
-      questions,
+      questions: shuffle(questions),
     };
   }
 
@@ -106,7 +108,7 @@ export class QuizzesService {
       case QuestionTypeEnum.COMMON:
         return specie.commonName;
       case QuestionTypeEnum.BOTH:
-        return `${specie.scientificName} / ${specie.commonName}`;
+        return `${specie.commonName} (${specie.scientificName})`;
       default:
         throw new NotFoundException('Question type not found.');
     }

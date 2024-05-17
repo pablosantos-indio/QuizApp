@@ -5,4 +5,5 @@ export class QuestionDto {
   url: string;
   userLogin: string;
   correctAnswer: string;
+  license: string;
 }
