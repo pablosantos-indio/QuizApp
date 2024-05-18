@@ -24,8 +24,8 @@ function FileUpload() {
     };
 
     const handleUpload = async () => {
-        if (!token.match(/[A-Za-z].*[0-9]|[0-9].*[A-Za-z]/)) {
-            setErrorMessage('Token must include at least one letter and one number and cannot contain special characters or spaces.');
+        if (!token.match(/^(?=.*[a-zA-Z])(?=.*[0-9])[a-zA-Z0-9]+$/)) {
+            setErrorMessage('It must have at least one letter and one number,\ncannot contain special characters or spaces.');
             return;
         }
 
