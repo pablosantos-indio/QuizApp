@@ -34,7 +34,7 @@ CREATE TABLE species (
                          taxon_family_name VARCHAR(255),
                          taxon_genus_name VARCHAR(255),
                          taxon_species_name VARCHAR(255),
-                         quiz_id INT,
+                         quiz_id INT NOT NULL,
                          INDEX idx_quiz_id (quiz_id),
                          FOREIGN KEY (quiz_id) REFERENCES quizzes(id) ON DELETE CASCADE
 ) DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci;

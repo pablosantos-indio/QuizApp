@@ -1,27 +1,11 @@
-import * as React from 'react';
-import Box from '@mui/material/Box';
+import React, { useState, useEffect } from 'react';
+import { Box, MobileStepper, Typography, Button, Radio, RadioGroup, FormControlLabel, FormControl, Link, Card, CardActions, CardContent, CardMedia, CardActionArea, Dialog, DialogActions, DialogContent, DialogTitle, IconButton, TextField } from '@mui/material';
 import { useTheme } from '@mui/material/styles';
-import MobileStepper from '@mui/material/MobileStepper';
-import Typography from '@mui/material/Typography';
-import Button from '@mui/material/Button';
 import KeyboardArrowLeft from '@mui/icons-material/KeyboardArrowLeft';
 import KeyboardArrowRight from '@mui/icons-material/KeyboardArrowRight';
-import Radio from '@mui/material/Radio';
-import RadioGroup from '@mui/material/RadioGroup';
-import FormControlLabel from '@mui/material/FormControlLabel';
-import FormControl from '@mui/material/FormControl';
-import Link from '@mui/material/Link';
-import Card from '@mui/material/Card';
-import CardActions from '@mui/material/CardActions';
-import CardContent from '@mui/material/CardContent';
-import CardMedia from '@mui/material/CardMedia';
 import { styled } from '@mui/material/styles';
-import Dialog from '@mui/material/Dialog';
-import DialogTitle from '@mui/material/DialogTitle';
-import DialogContent from '@mui/material/DialogContent';
-import DialogActions from '@mui/material/DialogActions';
-import IconButton from '@mui/material/IconButton';
 import CloseIcon from '@mui/icons-material/Close';
+import ProgressTracker from './ProgressTracker';
 
 
 const BootstrapDialog = styled(Dialog)(({ theme }) => ({
@@ -33,19 +17,21 @@ const BootstrapDialog = styled(Dialog)(({ theme }) => ({
   },
 }));
 
-export default function StepperQuiz({ quizzes, resetQuiz }) {
+export default function StepperQuiz({ questions, resetQuiz, firstName, lastName }) {
   const theme = useTheme();
-  const [activeStep, setActiveStep] = React.useState(0);
-  const [selectedAnswer, setSelectedAnswer] = React.useState(null);
-  const [correctAnswer, setCorrectAnswer] = React.useState(null);
-  const [incorrectAnswer, setIncorrectAnswer] = React.useState(null);
-  const [showLearnMore, setShowLearnMore] = React.useState(false);
-  const [learnMoreUrl, setLearnMoreUrl] = React.useState([]);
-  const [selectedAnswersList, setSelectedAnswersList] = React.useState([]);
+  const [activeStep, setActiveStep] = useState(0);
+  const [selectedAnswer, setSelectedAnswer] = useState(null);
+  const [correctAnswer, setCorrectAnswer] = useState(null);
+  const [incorrectAnswer, setIncorrectAnswer] = useState(null);
+  const [showLearnMore, setShowLearnMore] = useState(false);
+  const [learnMoreUrl, setLearnMoreUrl] = useState([]);
+  const [selectedAnswersList, setSelectedAnswersList] = useState([]);
+  const [lastStepConfirmed, setLastStepConfirmed] = useState(false);
+  const [stepNumber, setStepNumber] = useState('');
 
-  const quizArray = quizzes;
-
-  const steps = quizArray.map((quiz) => ({
+  
+  
+  const steps = questions.map((quiz) => ({
     imageUrl: quiz.imageUrl,
     description: quiz.description,
     userLogin: quiz.userLogin,
@@ -53,14 +39,16 @@ export default function StepperQuiz({ quizzes, resetQuiz }) {
     correctAnswer: quiz.correctAnswer,
     answers: quiz.answers
   }));
-
+  
   const maxSteps = steps.length;
+  
 
-  React.useEffect(() => {
+
+  useEffect(() => {
     const selectedAnswerForStep = selectedAnswersList.find((selection) => selection.step === activeStep);
     if (selectedAnswerForStep) {
       setSelectedAnswer(selectedAnswerForStep.answer);
-      setCorrectAnswer(selectedAnswerForStep.correctAnswer); 
+      setCorrectAnswer(selectedAnswerForStep.correctAnswer);
     } else {
       setSelectedAnswer(null);
       setCorrectAnswer(null);
@@ -68,9 +56,11 @@ export default function StepperQuiz({ quizzes, resetQuiz }) {
   }, [activeStep, selectedAnswersList]);
 
   const handleNext = () => {
+    setActiveStep((prevActiveStep) => prevActiveStep + 1);
+  };
+
+  const handleConfirm = () => {
     if (selectedAnswer !== null) {
-     
-     
       const existingSelection = selectedAnswersList.find(
         (selection) => selection.step === activeStep
       );
@@ -82,11 +72,11 @@ export default function StepperQuiz({ quizzes, resetQuiz }) {
         };
         setSelectedAnswersList((prevList) => [...prevList, selection]);
       }
-
       const nextUrl = steps[activeStep].url;
       if (!learnMoreUrl.includes(nextUrl)) {
         setLearnMoreUrl((prevUrls) => [...prevUrls, nextUrl]);
       }
+
 
       if (selectedAnswer === steps[activeStep].correctAnswer) {
         setShowLearnMore(true);
@@ -94,174 +84,267 @@ export default function StepperQuiz({ quizzes, resetQuiz }) {
         setIncorrectAnswer(selectedAnswer);
         setCorrectAnswer(steps[activeStep].correctAnswer);
         setShowLearnMore(true);
-
       }
 
-      setActiveStep((prevActiveStep) => prevActiveStep + 1);
+      if (activeStep === maxSteps - 1) {
+        setLastStepConfirmed(true);
+      }
     } else {
       console.error("error");
     }
   };
+
+
+
+
+
 
   const handleBack = () => {
     setActiveStep((prevActiveStep) => prevActiveStep - 1);
   };
 
   const handleAnswerSelect = (event) => {
-    setSelectedAnswer(event.target.value);
+    setSelectedAnswer(event.target.value); 
   };
 
+
   const calculateScore = () => {
-    const correctAnswers = selectedAnswersList.filter((selection) => selection.answer === selection.correctAnswer);
-    const incorrectAnswers = selectedAnswersList.filter((selection) => selection.answer !== selection.correctAnswer);
+    const correctAnswers = selectedAnswersList.filter((selection) =>  steps[selection.step].answers[parseInt(selection.answer)].toString() === selection.correctAnswer);
+    const incorrectAnswers = selectedAnswersList.filter((selection) => steps[selection.step].answers[parseInt(selection.answer)].toString() !== selection.correctAnswer);
     return { correct: correctAnswers.length, incorrect: incorrectAnswers.length };
   };
 
   const renderResultMessage = () => {
     const { correct, incorrect } = calculateScore();
     if (correct > incorrect) {
-      return <Typography sx={{ color: "green" }} variant="h6">Congratulations!</Typography>;
+      return (
+        <Typography sx={{ color: "green" }} variant="h6">
+          Congratulations {firstName} {lastName}!
+        </Typography>
+      );
     } else {
-      return <Typography sx={{ color: "yellow" }} variant="h6">Keep studying!</Typography>;
+      return (
+        <Typography sx={{ color: "yellow" }} variant="h6">
+          Keep studying, {firstName} {lastName}!
+        </Typography>
+      );
     }
   };
-  
-  
 
-  const [open, setOpen] = React.useState(false);
+  const { correct, incorrect } = calculateScore(); 
+
+
+  const [open, setOpen] = useState(false);
 
   const handleClickOpen = () => {
-    calculateScore()
-    const nextUrl = steps[activeStep].url;
-    if (!learnMoreUrl.includes(nextUrl)) {
-      setLearnMoreUrl((prevUrls) => [...prevUrls, nextUrl]);
-    }
-    const existingSelection = selectedAnswersList.find(
-      (selection) => selection.step === activeStep
-    );
-    if (!existingSelection) {
-      const selection = {
-        step: activeStep,
-        answer: selectedAnswer,
-        correctAnswer: steps[activeStep].correctAnswer
-      };
-      setSelectedAnswersList((prevList) => [...prevList, selection]);
-    }
+    calculateScore();
     setShowLearnMore(true);
     setOpen(true);
   };
+
   const handleClose = () => {
     setOpen(false);
   };
 
+  const handleStepNumberChange = (event) => {
+    setStepNumber(event.target.value);
+  };
+
+  const handleJumpToStep = () => {
+    const stepNum = parseInt(stepNumber, 10);
+    if (!isNaN(stepNum) && stepNum > 0 && stepNum <= maxSteps) {
+      const stepIndex = steps.findIndex((step, index) => index + 1 === stepNum);
+      if (stepIndex !== -1) {
+        setActiveStep(stepIndex);
+        setStepNumber('');
+      } else {
+        console.error('Step not found');
+      }
+    } else {
+      console.error('Invalid step number');
+    }
+  };
+
+
+
   return (
     <Box>
-      
       <Box
         sx={{
           display: "flex",
           justifyContent: "center",
           alignItems: "center",
-          flexDirection: { xs: "column", md: "row" }, 
-          gap: { xs: 2, md: 4 }, 
-          maxWidth: "90%", 
-          margin: "auto", 
+          flexDirection: { xs: "column", md: "row" },
+          gap: { xs: 2, md: 4 },
+          maxWidth: "90%",
+          margin: "auto",
         }}
       >
         <BootstrapDialog
-        onClose={handleClose}
-        aria-labelledby="customized-dialog-title"
-        open={open}
-      >
-        <DialogTitle sx={{ m: 0, p: 2 }} id="customized-dialog-title">
-          Quiz Result
-        </DialogTitle>
-        <IconButton
-          aria-label="close"
-          onClick={handleClose}
-          sx={{
-            position: 'absolute',
-            right: 8,
-            top: 8,
-            color: (theme) => theme.palette.grey[500],
-          }}
+          onClose={handleClose}
+          aria-labelledby="customized-dialog-title"
+          open={open}
         >
-          <CloseIcon />
-        </IconButton>
-          <DialogContent dividers>
-            <Box >
-              Correct: {calculateScore().correct}
-            </Box>
-            <Box >
-              Incorrect: {calculateScore().incorrect}
-            </Box>
-            <Box >
-              {renderResultMessage()}
-            </Box>
-          </DialogContent>
-
-        <DialogActions>
-          <Button autoFocus onClick={() => {resetQuiz(); handleClose();}}>
-            Back to Start
-          </Button>
-        </DialogActions>
-      </BootstrapDialog>
-          
-        <Card
-          sx={{
-            maxWidth: { xs: 300, sm: 400 }, 
-            margin: "auto", 
-          }}
-        >
-          <CardMedia
-          sx={{ position: 'relative', height: 240 }}
-          image={steps[activeStep].imageUrl}
-        >
-          <Typography
+          <DialogTitle sx={{ m: 0, p: 2 }} id="customized-dialog-title">
+            Quiz Result
+          </DialogTitle>
+          <IconButton
+            aria-label="close"
+            onClick={handleClose}
             sx={{
               position: 'absolute',
-              bottom: 0,
-              right: 0,
-              bgcolor: 'rgba(0, 0, 0, 0.7)',
-              color: 'white',
-              padding: '4px 8px',
+              right: 8,
+              top: 8,
+              color: (theme) => theme.palette.grey[500],
             }}
           >
-            Photo by {steps[activeStep].userLogin}
-          </Typography>
-        </CardMedia>
-        <CardContent>
-          <Typography gutterBottom variant="h5" component="div">
-            {steps[activeStep].description}
-          </Typography>
-          <Box sx={{ display: 'flex', justifyContent: 'flex-start', width: 400 }}>
-            <FormControl>
+            <CloseIcon />
+          </IconButton>
+          <DialogContent dividers>
+            <Box>
+              Correct: {calculateScore().correct}
+            </Box>
+            <Box>
+              Incorrect: {calculateScore().incorrect}
+            </Box>
+            <Box>
+              {renderResultMessage()}
+            </Box>
+            <Typography variant="h6" gutterBottom>
+              Incorrect Answers:
+            </Typography>
+            {selectedAnswersList.map((selection) => {
+              const step = steps[selection.step];
+              if (steps[selection.step].answers[parseInt(selection.answer)].toString() !== selection.correctAnswer) {
+                return (
+                  <Box key={selection.step} mb={3}>
+                    <Typography variant="h6">
+                      Question {parseInt(selection.answer) + 1}: {step.description}
+                    </Typography>
+                    <Typography>
+                      Your Answer: {steps[selection.step].answers[parseInt(selection.answer)].toString()}
+                    </Typography>
+                    <Typography>
+                      Correct Answer: {selection.correctAnswer}
+                    </Typography>
+                    <Link
+                      href={step.url}
+                      target="_blank"
+                      rel="noopener noreferrer"
+                    >
+                      Learn more
+                    </Link>
+                  </Box>
+                );
+              }
+              return null;
+            })}
+          </DialogContent>
+
+
+          <DialogActions>
+            <Button autoFocus onClick={() => { resetQuiz(); handleClose(); }}>
+              Back to Start
+            </Button>
+          </DialogActions>
+        </BootstrapDialog>
+        
+        <Card
+          sx={{
+            maxWidth: { xs: 300, sm: 400 },
+            margin: "auto",
+          }}
+        >
+          <Box sx={{ width: '100%', mb: 2 }}>
+            <ProgressTracker
+              totalQuestions={maxSteps}
+              correctAnswers={correct}
+              incorrectAnswers={incorrect}
+            />
+          </Box>
+          <CardActionArea>
+            <Link href={steps[activeStep].imageUrl} target="_blank" rel="noopener noreferrer">
+              <CardMedia
+                sx={{
+                  position: 'relative',
+                  height: 375,
+                }}
+                image={steps[activeStep].imageUrl}
+              >
+                <Typography
+                  sx={{
+                    position: 'absolute',
+                    bottom: 0,
+                    right: 0,
+                    bgcolor: 'rgba(0, 0, 0, 0.5)',
+                    color: 'white',
+                    padding: '4px 8px',
+                  }}
+                >
+                  Photo by {steps[activeStep].userLogin}
+                </Typography>
+              </CardMedia>
+            </Link>
+          </CardActionArea>
+          <Box
+            sx={{
+              display: 'flex',
+              justifyContent: 'space-between',
+              alignItems: 'center',
+              padding: '8px 16px',
+              bgcolor: 'rgba(0, 0, 0, 0.1)',
+            }}
+          >
+            <Link
+              href="https://www.inaturalist.org/"
+              color="inherit"
+              underline="always"
+              target="_blank"
+              rel="noopener noreferrer"
+            >
+              Font: inaturalist
+            </Link>
+            <Typography>
+              License {steps[activeStep].userLogin}
+            </Typography>
+          </Box>
+
+          <CardContent>
+            <Typography gutterBottom variant="h5" component="div">
+              {steps[activeStep].description}
+            </Typography>
+            <Box sx={{ width: 400 }}>
+              <FormControl sx={{ width: "100%" }}>
                 <RadioGroup
                   aria-labelledby={`alternative-radio-group-label-${activeStep}`}
                   name={`alternative-radio-group-label-${activeStep}`}
                   value={selectedAnswer}
                   onChange={handleAnswerSelect}
+                  sx={{ display: 'flex', justifyContent: 'flex-start' }}
                 >
                   {steps[activeStep]?.answers?.length > 0 ? (
                     steps[activeStep].answers.map((answer, index) => {
-                      const isSelected = selectedAnswersList.some(
-                        (selection) => selection.step === activeStep && selection.answer === answer
-                      );
-                      const isCorrectSelection = answer === correctAnswer;
+                      const isSelected = selectedAnswersList.some((selection) => {
+                        return selection.step === activeStep && selection.answer === index.toString();
+                      });
+                      const isCorrectSelection = answer === correctAnswer; // Verifica se esta resposta é a correta
                       const isIncorrectSelection = isSelected && !isCorrectSelection;
 
+                     
                       return (
                         <FormControlLabel
-                          key={index}
-                          value={answer}
+                          key={`${index}-${answer}`}
+                          value={index.toString()} // Define o valor como o índice convertido para string
                           control={<Radio />}
                           label={answer}
                           sx={{
-                            color:
-                              isCorrectSelection ? "green" :
-                                isIncorrectSelection ? "red" :
-                                  isSelected ? "orange" :
-                                    undefined,
+                            color: isCorrectSelection
+                              ? "green"
+                              : isIncorrectSelection
+                                ? "red"
+                                : isSelected
+                                  ? "orange"
+                                  : undefined,
                           }}
                         />
                       );
@@ -271,33 +354,41 @@ export default function StepperQuiz({ quizzes, resetQuiz }) {
                   )}
                 </RadioGroup>
 
-            </FormControl>
-          </Box>
-        </CardContent>
-        <CardActions>
-          {showLearnMore && learnMoreUrl === steps[activeStep].url && (
-            <Link href={steps[activeStep].url}>Learn more</Link>
-          )}
-          {showLearnMore &&
-            learnMoreUrl.map((url) => {
-              if (url === steps[activeStep].url) {
-                return <Link key={url} href={url}>Learn more</Link>;
-              }
-              return null; 
-            })
-          }
-        </CardActions>
-        <MobileStepper
-          variant="text"
-          steps={maxSteps}
-          position="static"
-          activeStep={activeStep}
+
+                <Box mt={2} sx={{ display: "flex", justifyContent: "center" }}>
+                  <Button
+                    variant="contained"
+                    onClick={handleConfirm}
+                    disabled={selectedAnswer === null || (lastStepConfirmed && activeStep === maxSteps - 1)}
+                  >
+                    Confirm
+                  </Button>
+                </Box>
+              </FormControl>
+            </Box>
+          </CardContent>
+          <CardActions>
+            {showLearnMore && learnMoreUrl.includes(steps[activeStep].url) && (
+              <Link
+                href={steps[activeStep].url}
+                target="_blank"
+                rel="noopener noreferrer"
+              >
+                Learn more
+              </Link>
+            )}
+          </CardActions>
+          <MobileStepper
+            variant="text"
+            steps={maxSteps}
+            position="static"
+            activeStep={activeStep}
             nextButton={
-              (activeStep === maxSteps -1 ) ? ( 
+              activeStep === maxSteps - 1 ? (
                 <Button
                   variant="outlined"
                   onClick={handleClickOpen}
-                  disabled={selectedAnswer === null }
+                  disabled={!lastStepConfirmed} 
                 >
                   Finish
                 </Button>
@@ -305,9 +396,8 @@ export default function StepperQuiz({ quizzes, resetQuiz }) {
                 <Button
                   size="small"
                   onClick={handleNext}
-                  disabled={selectedAnswer === null || activeStep === maxSteps - 1}
                 >
-                  Send
+                  Next
                   {theme.direction === 'rtl' ? (
                     <KeyboardArrowLeft />
                   ) : (
@@ -316,20 +406,37 @@ export default function StepperQuiz({ quizzes, resetQuiz }) {
                 </Button>
               )
             }
-          backButton={
-            <Button size="small" onClick={handleBack} disabled={activeStep === 0}>
-              {theme.direction === 'rtl' ? (
-                <KeyboardArrowRight />
-              ) : (
-                <KeyboardArrowLeft />
-              )}
-              Back
-            </Button>
-          }
+            backButton={
+              <Button size="small" onClick={handleBack} disabled={activeStep === 0}>
+                {theme.direction === 'rtl' ? (
+                  <KeyboardArrowRight />
+                ) : (
+                  <KeyboardArrowLeft />
+                )}
+                Back
+              </Button>
+            }
+          />
+        </Card>
+      </Box>
+      <Box sx={{ display: "flex", justifyContent: "center", mt: 2 }}>
+        <TextField
+          label="Step Number"
+          value={stepNumber}
+          onChange={handleStepNumberChange}
+          variant="outlined"
+          size="small"
+          type="number"
+          inputProps={{ min: 0, max: maxSteps - 1 }}
         />
-        
-      </Card>
+        <Button
+          variant="contained"
+          onClick={handleJumpToStep}
+          sx={{ ml: 2 }}
+        >
+          Go to Step
+        </Button>
       </Box>
-      </Box>
+    </Box>
   );
 }

@@ -1,8 +1,8 @@
 import React from 'react';
 import { useMediaQuery } from '@mui/material';
 import Box from '@mui/material/Box';
-import StepperCreateQuiz from './StepperCreateQuiz';
-import StepperCreateQuizMobile from './StepperCreateQuizMobile';
+import StepperCreateQuiz from '../components/StepperCreateQuiz';
+import StepperCreateQuizMobile from '../components/StepperCreateQuizMobile';
 import StartQuiz from './StartQuiz';
 
 export default function ResponsiveStepper({ selectedItem }) {
@@ -14,7 +14,7 @@ export default function ResponsiveStepper({ selectedItem }) {
       {selectedItem === "Professor" ? (
         isMobile ? <StepperCreateQuizMobile /> : <StepperCreateQuiz />
       ) : selectedItem === "Student" ? (
-          <StartQuiz />
+        <StartQuiz />
       ) : null}
     </Box>
   );

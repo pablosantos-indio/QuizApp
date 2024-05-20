@@ -60,7 +60,6 @@ export function validateFile(file: Express.Multer.File, token: string) {
 
   // Verify if the token is valid
   if (!token.match(/^(?=.*[a-zA-Z])(?=.*[0-9])[a-zA-Z0-9]+$/)) {
-    console.error('Invalid token format');
     throw new BadRequestException(
       'It must have at least one letter and one number, and cannot contain special characters or spaces.',
     );

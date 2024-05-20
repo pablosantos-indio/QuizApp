@@ -1,39 +1,53 @@
-import React, { useState } from 'react';
-import Box from '@mui/material/Box';
+import React, { useState, useRef, useEffect } from 'react';
+import {Box,MobileStepper,Typography, Button, CircularProgress} from '@mui/material';
 import { useTheme } from '@mui/material/styles';
-import MobileStepper from '@mui/material/MobileStepper';
-import Paper from '@mui/material/Paper';
-import Typography from '@mui/material/Typography';
-import Button from '@mui/material/Button';
 import KeyboardArrowLeft from '@mui/icons-material/KeyboardArrowLeft';
 import KeyboardArrowRight from '@mui/icons-material/KeyboardArrowRight';
 import CreateQuiz from './CreateQuiz';
 import QuizConfiguration from './QuizConfiguration';
+import { QuizService } from "../services/quiz.service";
+import { green } from '@mui/material/colors';
+
 
 export default function StepperCreateQuizMobile() {
   const theme = useTheme();
   const [activeStep, setActiveStep] = useState(0);
-
   const [file, setFile] = useState(null);
   const [token, setToken] = useState('');
   const [errorNumberQuestions, setErrorNumberQuestions] = useState(false);
-  const [errorTypesAnswers, setErrorTypesAnswers] = useState(false);
+  const [errorQuestionType, setErrorQuestionType] = useState(false);
   const [errorMessage, setErrorMessage] = useState('');
   const [errorMessageNumberQuestions, setErrorMessageNumberQuestions] = useState('');
-  const [errorMessageTypesAnswers, setErrorMessageTypesAnswers] = useState('');
+  const [errorMessageQuestionType, setErrorMessageQuestionType] = useState('');
   const [errorMessageCreateToken, setErrorMessageCreateToken] = useState('');
   const [errorCreateToken, setErrorCreateToken] = useState(false);
   const [errorFileUpload, setErrorFileUpload] = useState(false);
   const [errorMessageFileUpload, setErrorMessageFileUpload] = useState('');
 
-  const [numberQuestions, setNumberQuestions] = useState('');
-  const [typesAnswers, setTypesAnswers] = useState('both');
+  const [successMessage, setSuccessMessage] = useState('');
+  const [quantityQuestion, setQuantityQuestion] = useState('');
+  const [maxNumberQuestions, setMaxNumberQuestions] = useState('');
+  const [idQuiz, setIdQuiz] = useState('');
+  const [questionType, setQuestionType] = useState(3);
+  const [loading, setLoading] = useState(false);
+  const [success, setSuccess] = useState(false);
+  const timer = useRef();
+  const buttonSx = {
+    ...(success && {
+      bgcolor: green[500],
+      '&:hover': {
+        bgcolor: green[700],
+      },
+    }),
+  };
 
   const steps = [
     {
-      label: 'Create Token and FileUpload',
+      label: 'Create Token and File Upload',
       component: <CreateQuiz
+        loading={loading}
         token={token}
+        file={file}
         setFile={setFile}
         setToken={setToken}
         errorMessageCreateToken={errorMessageCreateToken}
@@ -50,70 +64,119 @@ export default function StepperCreateQuizMobile() {
     {
       label: 'Quiz Configuration',
       component: <QuizConfiguration
-        numberQuestions={numberQuestions}
-        typesAnswers={typesAnswers}
-        setNumberQuestions={setNumberQuestions}
-        setTypesAnswers={setTypesAnswers}
+        loading={loading}
+        maxNumberQuestions={maxNumberQuestions}
+        quantityQuestion={quantityQuestion}
+        questionType={questionType}
+        setQuantityQuestion={setQuantityQuestion}
+        setQuestionType={setQuestionType}
         errorNumberQuestions={errorNumberQuestions}
-        errorTypesAnswers={errorTypesAnswers}
+        errorQuestionType={errorQuestionType}
         errorMessageNumberQuestions={errorMessageNumberQuestions}
-        errorMessageTypesAnswers={errorMessageTypesAnswers}
+        errorMessageQuestionType={errorMessageQuestionType}
       />,
-      actionButtonLabel: 'Create'
+      actionButtonLabel: 'Generate Quiz'
     },
     {
-      label: 'Quiz generated successfully.',
+      label: successMessage,
       actionButtonLabel: 'Home'
     },
   ];
   const maxSteps = steps.length;
 
-  const handleNext = () => {
-    if (activeStep === maxSteps - 1) {
-      handleReset();
-    } else {
-      if (activeStep === 0) {
-        if (token && file) {
-          setActiveStep((prevActiveStep) => prevActiveStep + 1);
-          setErrorMessage('');
-        } else if (!file && !token) {
-          setErrorMessageFileUpload('Need to upload the file');
-          setErrorMessageCreateToken('I need to provide a token');
-          setErrorCreateToken(true);
-          setErrorFileUpload(true);
-        } else if (!file) {
-          setErrorFileUpload(true);
-          setErrorCreateToken(false);
-          setErrorMessageCreateToken('');
-          setErrorMessageFileUpload('Need to upload the file');
-        } else if (!token) {
-          setErrorCreateToken(true);
-          setErrorFileUpload(false);
-          setErrorMessageCreateToken('I need to provide a token');
-          setErrorMessageFileUpload('');
+  const handleSend = async () => {
+    if (activeStep === 0) {
+      if (token && file) {
+        const formData = new FormData();
+        formData.append('file', file);
+        formData.append('token', token);
+
+        setSuccess(false);
+        setLoading(true);
+
+        try {
+          const response = await QuizService.create(formData);
+          if (response.success) {
+            setMaxNumberQuestions(response.maxQuestion);
+            setIdQuiz(response.idQuiz);
+            setActiveStep((prevActiveStep) => prevActiveStep + 1);
+            setErrorCreateToken(false)
+            setErrorMessageCreateToken("");
+          }
+        } catch (error) {
+          if (error.response.data.message === "There's already a quiz with this token." || "Token must include at least one letter and one number and cannot contain special characters or spaces.") {
+            setErrorCreateToken(true)
+            setErrorMessageCreateToken(error.response?.data?.message || 'An error occurred while processing your request.');
+          } else {
+            setErrorFileUpload(true)
+            setErrorMessageFileUpload("Wrong file format, please select a file in the formats .csv, .xls, .xlsx.");
+          }
+          setSuccess(false);
+
+        } finally {
+          setLoading(false);
         }
-      } else if (activeStep === 1) {
-        if (typesAnswers && numberQuestions) {
-          setActiveStep((prevActiveStep) => prevActiveStep + 1);
-        } else if (!numberQuestions && !typesAnswers) {
-          setErrorMessageNumberQuestions('Please provide a number.');
-          setErrorMessageTypesAnswers('Please select an option.');
-          setErrorNumberQuestions(true);
-          setErrorTypesAnswers(true);
-        } else if (!numberQuestions) {
-          setErrorNumberQuestions(true);
-          setErrorTypesAnswers(false);
-          setErrorMessageTypesAnswers('');
-          setErrorMessageNumberQuestions('Please provide a number.');
-        } else if (!typesAnswers) {
-          setErrorTypesAnswers(true);
-          setErrorNumberQuestions(false);
-          setErrorMessageTypesAnswers('Please select an option.');
-          setErrorMessageNumberQuestions('');
-        }
+
+      } else if (!file && !token) {
+        setErrorMessageFileUpload('Need to upload the file');
+        setErrorMessageCreateToken('I need to provide a token');
+        setErrorCreateToken(true);
+        setErrorFileUpload(true);
+      } else if (!file) {
+        setErrorFileUpload(true);
+        setErrorCreateToken(false);
+        setErrorMessageCreateToken('');
+        setErrorMessageFileUpload('Need to upload the file');
+      } else if (!token) {
+        setErrorCreateToken(true);
+        setErrorFileUpload(false);
+        setErrorMessageCreateToken('I need to provide a token');
+        setErrorMessageFileUpload('');
       }
     }
   };
+
+  const handleCreate = async () => {
+    if (questionType && quantityQuestion) {
+      const quantityQuestionNumber = parseInt(quantityQuestion, 10);
+      setSuccess(false);
+      setLoading(true);
+      setTimeout(async () => {
+
+      try {
+        const response = await QuizService.update(idQuiz, quantityQuestionNumber, questionType);
+        if (response.success) {
+          setSuccessMessage(response.message)
+          setActiveStep((prevActiveStep) => prevActiveStep + 1);
+        }
+      } catch (error) {
+        setSuccess(false);
+
+      } finally {
+        setLoading(false);
+      }
+      }, 10000); // Atraso de 2 segundos
+
+    } else if (!quantityQuestion && !questionType) {
+      setErrorMessageNumberQuestions('Please provide a number.');
+      setErrorMessageQuestionType('Please select an option.');
+      setErrorNumberQuestions(true);
+      setErrorQuestionType(true);
+    } else if (!quantityQuestion) {
+      setErrorNumberQuestions(true);
+      setErrorQuestionType(false);
+      setErrorMessageQuestionType('');
+      setErrorMessageNumberQuestions('Please provide a number.');
+    } else if (!questionType) {
+      setErrorQuestionType(true);
+      setErrorNumberQuestions(false);
+      setErrorMessageQuestionType('Please select an option.');
+      setErrorMessageNumberQuestions('');
+    }
+  };
+
+  
+  
 
   const handleBack = () => {
     setActiveStep((prevActiveStep) => prevActiveStep - 1);
@@ -121,43 +184,52 @@ export default function StepperCreateQuizMobile() {
 
   const handleReset = () => {
     setErrorMessageNumberQuestions('');
-    setErrorMessageTypesAnswers('');
-    setErrorNumberQuestions(false)
-    setErrorTypesAnswers(false)
+    setErrorMessageQuestionType('');
+    setErrorNumberQuestions(false);
+    setErrorQuestionType(false);
     setToken('');
     setFile(null);
     setErrorMessageFileUpload('');
-    setErrorFileUpload(false)
-    setNumberQuestions('');
-    setTypesAnswers('both');
+    setErrorFileUpload(false);
+    setQuantityQuestion('');
+    setQuestionType(3);
     setActiveStep(0);
+    setSuccessMessage('');
   };
 
   return (
     <Box sx={{ maxWidth: 400, flexGrow: 1 }}>
-      <Paper
-        square
-        elevation={0}
-        sx={{
-          display: 'flex',
-          alignItems: 'center',
-          height: 50,
-          pl: 2,
-          color: theme.palette.primary,
-        }}
-      >
-        {steps[activeStep].label === 'Quiz generated successfully.' ? (
-          <Box sx={{ backgroundColor: 'green', borderRadius: '10px', }}>
-            <Typography variant="h4" sx={{ textAlign: 'center', color: "white" }}>{steps[activeStep].label}
+      
+        {successMessage ? (
+          <Box
+            sx={{
+              backgroundColor: 'green',
+              borderRadius: '10px',
+              padding: '20px',
+              textAlign: 'center',
+              color: 'white',
+              margin: '20px 0',
+            }}
+          >
+            <Typography variant="h4" sx={{ marginBottom: '10px' }}>
+              {successMessage && `${successMessage}.`}
             </Typography>
-          </Box>
+            <Typography variant="h4">
+              Token{' '}
+              {token && (
+                <span style={{ color: 'blue' }}>
+                  {token}
+                </span>
+              )}{' '}
+              created!
+            </Typography>
 
+          </Box>
         ) : (
           <Typography variant="h6" sx={{ fontWeight: 'bold' }}>
             {steps[activeStep].label}
           </Typography>
         )}
-      </Paper>
 
       <Box sx={{ maxWidth: 400, width: '100%', p: 2 }}>
         {steps[activeStep].component}
@@ -168,28 +240,88 @@ export default function StepperCreateQuizMobile() {
         position="static"
         activeStep={activeStep}
         nextButton={
-          <Button
-            size="small"
-            onClick={handleNext}
-            disabled={(activeStep === maxSteps - 1 && !file) || activeStep === maxSteps}
-            style={{ visibility: activeStep === maxSteps - 1 ? 'hidden' : 'visible' }}
-          >
-            {steps[activeStep].actionButtonLabel}
-            {theme.direction === 'rtl' ? (
-              <KeyboardArrowLeft />
-            ) : (
-              <KeyboardArrowRight />
-            )}
-          </Button>
+          activeStep === 0 ? (
+            <Box sx={{ m: 1, position: 'relative' }}>
+              <Button
+                variant="contained"
+                sx={buttonSx}
+                disabled={loading}
+                onClick={handleSend}
+              >
+                Send
+              </Button>
+              {loading && (
+                <CircularProgress
+                  size={24}
+                  sx={{
+                    color: green[500],
+                    position: 'absolute',
+                    top: '50%',
+                    left: '50%',
+                    marginTop: '-12px',
+                    marginLeft: '-12px',
+                  }}
+                />
+              )}
+            </Box>
+          ) : activeStep === 1 ? (
+            <Box sx={{ m: 1, position: 'relative' }}>
+              <Button
+                variant="contained"
+                sx={buttonSx}
+                disabled={loading}
+                onClick={handleCreate}
+              >
+                Create
+              </Button>
+              {loading && (
+                <CircularProgress
+                  size={24}
+                  sx={{
+                    color: green[500],
+                    position: 'absolute',
+                    top: '50%',
+                    left: '50%',
+                    marginTop: '-12px',
+                    marginLeft: '-12px',
+                  }}
+                />
+              )}
+            </Box>
+          ) : activeStep === 2 ? (
+            <Box >
+              <Button
+                size="small"
+                    onClick={handleBack}
+                    style={{ visibility: activeStep === 2 ? 'hidden' : 'visible' }} 
+                    disabled={activeStep === 2}
+
+              >
+                
+              </Button>
+            </Box>
+          ) : null
         }
+
+
         backButton={
           activeStep === maxSteps - 1 ? (
-            <Button size="small" onClick={handleReset}>
-              <KeyboardArrowLeft />
+            <Button
+              size="large"
+              variant="contained"
+              color="primary"
+              onClick={handleReset}
+
+            >
               Home
             </Button>
           ) : (
-            <Button size="small" onClick={handleBack} disabled={activeStep === 0}>
+            <Button
+              size="small"
+              onClick={handleBack}
+              disabled={activeStep === 0}
+              style={{ visibility: activeStep === 0 ? 'hidden' : 'visible' }} 
+            >
               {theme.direction === 'rtl' ? (
                 <KeyboardArrowRight />
               ) : (
@@ -199,6 +331,7 @@ export default function StepperCreateQuizMobile() {
             </Button>
           )
         }
+
       />
     </Box>
   );

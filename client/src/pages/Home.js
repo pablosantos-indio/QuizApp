@@ -1,29 +1,18 @@
-import React from 'react';
-import AppBar from '@mui/material/AppBar';
-import Box from '@mui/material/Box';
-import CssBaseline from '@mui/material/CssBaseline';
-import Divider from '@mui/material/Divider';
-import Drawer from '@mui/material/Drawer';
-import IconButton from '@mui/material/IconButton';
-import List from '@mui/material/List';
-import ListItem from '@mui/material/ListItem';
-import ListItemButton from '@mui/material/ListItemButton';
-import ListItemIcon from '@mui/material/ListItemIcon';
-import ListItemText from '@mui/material/ListItemText';
+import React, {useState} from 'react';
+import {AppBar, Box, CssBaseline, Divider, Drawer, IconButton, List, ListItem, ListItemButton,ListItemIcon,ListItemText,Toolbar,Typography} from '@mui/material';
 import MenuIcon from '@mui/icons-material/Menu';
-import Toolbar from '@mui/material/Toolbar';
-import Typography from '@mui/material/Typography';
-import ProfessorIcon from './ProfessorIcon';
-import StudentIcon from './StudentIcon';
+import { ProfessorIcon,StudentIcon, ManualIcon,AboutIcon } from '../icons';
 import ResponsiveStepper from './ResponsiveStepper';
 import StartQuiz from './StartQuiz';
+import Manual from './Manual';
+import About from './About';
 
 const drawerWidth = 240;
 
 export default function Home(props) {
   const { window } = props;
-  const [mobileOpen, setMobileOpen] = React.useState(false);
-  const [selectedItem, setSelectedItem] = React.useState('Professor');
+  const [mobileOpen, setMobileOpen] = useState(false);
+  const [selectedItem, setSelectedItem] = useState('Professor');
 
   const handleDrawerClose = () => {
     setMobileOpen(false);
@@ -43,28 +32,35 @@ export default function Home(props) {
       <Toolbar />
       <Divider />
       <List>
-        {['Professor', 'Student'].map((text, index) => (
+        {['Professor', 'Student', 'Manual', 'About'].map((text, index) => (
           <ListItem key={text} disablePadding>
             <ListItemButton
               onClick={() => handleItemClick(text)}
               selected={selectedItem === text}
             >
               <ListItemIcon>
-                {index % 2 === 0 ? <ProfessorIcon /> : <StudentIcon />}
+                {text === 'Professor' ? (
+                  <ProfessorIcon />
+                ) : text === 'Student' ? (
+                  <StudentIcon />
+                ) : text === 'Manual' ? (
+                  <ManualIcon />
+                ) : (
+                  <AboutIcon />
+                )}
               </ListItemIcon>
               <ListItemText primary={text} />
             </ListItemButton>
           </ListItem>
         ))}
 
+
       </List>
     </div>
   );
 
-  // Remove this const when copying and pasting into your project.
   const container = window !== undefined ? () => window().document.body : undefined;
 
-  // Render content based on selectedItem
   const renderContent = () => {
     if (selectedItem === 'Professor') {
       return (
@@ -72,11 +68,19 @@ export default function Home(props) {
       );
     } else if (selectedItem === 'Student') {
       return (
-        <StartQuiz/>
+        <StartQuiz />
+      );
+    } else if (selectedItem === 'About') {
+      return (
+        <About />
+      );
+    } else if (selectedItem === 'Manual') {
+      return (
+        <Manual />
       );
     }
-    // Add more conditions for other items if needed
   };
+
 
   return (
     <Box sx={{ display: 'flex' }}>
@@ -115,7 +119,7 @@ export default function Home(props) {
           open={mobileOpen}
           onClose={handleDrawerClose}
           ModalProps={{
-            keepMounted: true, // Better open performance on mobile.
+            keepMounted: true, 
           }}
           sx={{
             display: { xs: 'block', sm: 'none' },

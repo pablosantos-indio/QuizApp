@@ -8,7 +8,7 @@ import Radio from '@mui/material/Radio';
 import TextField from '@mui/material/TextField';
 import { FormHelperText, FormControl } from '@mui/material';
 
-export default function QuizConfiguration({ maxNumberQuestions, quantityQuestion, questionType, setQuantityQuestion, setQuestionType, errorTypesAnswers, errorNumberQuestions, errorMessageNumberQuestions, errorMessageTypesAnswers }) {
+export default function QuizConfiguration({ maxNumberQuestions, quantityQuestion, questionType, setQuantityQuestion, setQuestionType, errorQuestionType, errorNumberQuestions, errorMessageNumberQuestions, errorMessageQuestionType, loading }) {
 
   const handleNumberQuestionsChange = (event) => {
     let value = event.target.value.replace(/\D/g, '');
@@ -24,7 +24,7 @@ export default function QuizConfiguration({ maxNumberQuestions, quantityQuestion
     setQuantityQuestion(value);
   };
 
-  const handleTypesAnswersChange = (event) => {
+  const handleQuestionTypeChange = (event) => {
     setQuestionType(parseInt(event.target.value));
   };
 
@@ -53,49 +53,60 @@ export default function QuizConfiguration({ maxNumberQuestions, quantityQuestion
           }}
         >
           <Box sx={{ display: 'flex', flexDirection: 'column' }}>
-            <TextField
-              id="number-questions"
-              error={errorNumberQuestions}
-              required
-              label="Number of Questions"
-              max={maxNumberQuestions}
-              value={quantityQuestion}
-              onChange={handleNumberQuestionsChange}
-              helperText={errorMessageNumberQuestions}
-            />
-          </Box>
+            <FormControl sx={{ gap:1}} error={errorQuestionType} variant="standard">
+              <FormLabel htmlFor="number-questions" sx={{ display: 'inline',  fontWeight: 'normal' }} required>
+                The maximum number of allowed questions is {maxNumberQuestions}.
+              </FormLabel>
 
-          <Box>
-              <FormControl sx={{ m: 3 }} error={errorTypesAnswers} variant="standard">
+                <TextField
+                  id="number-questions"
+                  name='number-questions'
+                  error={errorNumberQuestions}
+                  required
+                  label="Number of Questions"
+                  max={maxNumberQuestions}
+                  value={quantityQuestion}
+                  onChange={handleNumberQuestionsChange}
+                  helperText={errorMessageNumberQuestions}
+                  sx={{ mb: "30px" }}
+                  disabled={loading}
+                />
+              
 
-                  <FormLabel htmlFor="types-answers" required>
-                      Types of Answers
-                  </FormLabel>
-                  <RadioGroup
-                      aria-labelledby="types-answers-label"
-                      name="types-answers"
-                      value={questionType}
-                      onChange={handleTypesAnswersChange}
-                      required
-                  >
-                  <FormControlLabel
-                      value="1"
-                      control={<Radio />}
-                      label="Scientific Name"
-                  />
-                  <FormControlLabel
-                      value="2"
-                      control={<Radio />}
-                      label="Common Name"
-                  />
-                  <FormControlLabel
-                      value="3"
-                      control={<Radio />}
-                      label="Both"
-                  />
+                <FormLabel htmlFor="types-answers" required>
+                    Types of Answers
+                </FormLabel>
+                <RadioGroup
+                  aria-labelledby="types-answers-label"
+                  name="types-answers"
+                  value={questionType}
+                  onChange={handleQuestionTypeChange}
+                  required
+                >
+                <FormControlLabel
+                  value="1"
+                  control={<Radio />}
+                  label="Scientific Name"
+                  disabled={loading}
+
+                />
+                <FormControlLabel
+                  value="2"
+                  control={<Radio />}
+                  label="Common Name"
+                  disabled={loading}
+
+                />
+                <FormControlLabel
+                  value="3"
+                  control={<Radio />}
+                  label="Both"
+                  disabled={loading}
+
+                />
               </RadioGroup>
 
-              <FormHelperText>{errorMessageTypesAnswers}</FormHelperText>
+              <FormHelperText>{errorMessageQuestionType}</FormHelperText>
             </FormControl>
           </Box>
         </Box>

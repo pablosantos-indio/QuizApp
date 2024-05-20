@@ -29,63 +29,62 @@ export class QuizzesService {
       throw new NotFoundException('Quiz not found.');
     }
 
-    const questions: QuestionDto[] = [];
-    let answers: string[] = [];
-    let answer: string;
-    let correctAnswerIndex = true;
-
-    let selectedIndices = [];
-    let randomNumber;
-    let correctAnswer;
-
-    for (let i = 0; i < quiz.quantityQuestion - 1; i++) {
-      for (let j = 0; j < 5; j++) {
-        if (correctAnswerIndex) {
-          answer = this.getAnswerDescription(
-            quiz.questionType,
-            quiz.species[i],
-          );
-
-          correctAnswer = answer;
-          correctAnswerIndex = false;
-          selectedIndices.push(i);
-        } else {
-          do {
-            randomNumber = Math.floor(Math.random() * quiz.species.length);
-          } while (selectedIndices.includes(randomNumber));
-
-          selectedIndices.push(randomNumber);
-
-          answer = this.getAnswerDescription(
-            quiz.questionType,
-            quiz.species[randomNumber],
-          );
-        }
-
-        answers.push(answer);
-      }
-
-      correctAnswerIndex = true;
-
-      questions.push({
-        description: this.getQuestionDescription(quiz.questionType),
-        answers: shuffle(answers),
-        imageUrl: quiz.species[i].imageUrl,
-        url: quiz.species[i].url,
-        userLogin: quiz.species[i].userLogin,
-        correctAnswer,
-        license: quiz.species[i].license,
-      });
-
-      answers = [];
-      selectedIndices = [];
-    }
+    const quizQuantity = quiz.quantityQuestion;
+    const quizQuestions = this.generateQuiz(
+      quiz.species,
+      quizQuantity,
+      quiz.questionType,
+    );
 
     return {
       success: true,
       message: 'File processed and data inserted successfully.',
-      questions: shuffle(questions),
+      questions: shuffle(quizQuestions),
     };
+  }
+
+  private generateQuiz(
+    speciesList: Species[],
+    quizQuantity: number,
+    questionType: QuestionTypeEnum,
+  ): QuestionDto[] {
+    const generatedQuestions: Set<string> = new Set();
+    const questions: QuestionDto[] = [];
+
+    while (questions.length < quizQuantity) {
+      const { correctAnswer, incorrectAnswers } =
+        this.generateQuestion(speciesList);
+
+      const questionKey = `${correctAnswer.id}-${incorrectAnswers.map((s) => s.id).join('-')}`;
+
+      // Verifica se a pergunta já foi gerada
+      if (!generatedQuestions.has(questionKey)) {
+        const answers: string[] = [];
+        const correctAnswerDescription = this.getAnswerDescription(
+          questionType,
+          correctAnswer,
+        );
+
+        answers.push(correctAnswerDescription);
+
+        incorrectAnswers.forEach((answer) => {
+          answers.push(this.getAnswerDescription(questionType, answer));
+        });
+
+        generatedQuestions.add(questionKey);
+        questions.push({
+          description: this.getQuestionDescription(questionType),
+          answers: shuffle(answers),
+          imageUrl: correctAnswer.imageUrl,
+          url: correctAnswer.url,
+          userLogin: correctAnswer.userLogin,
+          correctAnswer: correctAnswerDescription,
+          license: correctAnswer.license,
+        });
+      }
+    }
+
+    return questions;
   }
 
   private getQuestionDescription(questionType: number) {
@@ -113,4 +112,105 @@ export class QuizzesService {
         throw new NotFoundException('Question type not found.');
     }
   }
+
+  // Função para gerar uma única pergunta
+  private generateQuestion(speciesList: Species[]): {
+    correctAnswer: Species;
+    incorrectAnswers: Species[];
+  } {
+    // Seleciona uma resposta correta aleatoriamente
+    const correctAnswer =
+      speciesList[Math.floor(Math.random() * speciesList.length)];
+
+    const incorrectAnswers: Species[] = [];
+
+    // Função auxiliar para adicionar espécies ao incorrectAnswers sem duplicatas
+    function addSpecies(attribute: keyof Species, requiredCount: number) {
+      const filteredSpecies = speciesList.filter(
+        (s) =>
+          s !== correctAnswer &&
+          s[attribute] === correctAnswer[attribute] &&
+          !incorrectAnswers.includes(s),
+      );
+      const toAdd = filteredSpecies.slice(0, requiredCount);
+      incorrectAnswers.push(...toAdd);
+    }
+
+    // Passo 1: Adicionar um registro com taxonGenusName
+    addSpecies('taxonGenusName', 1);
+
+    // Passo 2: Adicionar registros com taxonFamilyName
+    addSpecies('taxonFamilyName', Math.min(2, 2 - incorrectAnswers.length));
+
+    // Passo 3: Adicionar registros com taxonOrderName
+    addSpecies('taxonOrderName', Math.min(3, 3 - incorrectAnswers.length));
+
+    // Passo 4: Adicionar registros com taxonClassName
+    addSpecies('taxonClassName', Math.min(4, 4 - incorrectAnswers.length));
+
+    // Passo 5: Completar com registros aleatórios se necessário
+    if (incorrectAnswers.length < 4) {
+      const remainingSpecies = speciesList.filter(
+        (s) => s !== correctAnswer && !incorrectAnswers.includes(s),
+      );
+      const randomSpecies = remainingSpecies
+        .sort(() => 0.5 - Math.random())
+        .slice(0, 4 - incorrectAnswers.length);
+      incorrectAnswers.push(...randomSpecies);
+    }
+
+    return { correctAnswer, incorrectAnswers: incorrectAnswers.slice(0, 4) };
+  }
+
+  //TODO feature improvement: Generate hard questions
+  // private generateQuestion(speciesList: Species[]): {
+  //   correctAnswer: Species;
+  //   incorrectAnswers: Species[];
+  // } {
+  //   // Seleciona uma resposta correta aleatoriamente
+  //   const correctAnswer =
+  //     speciesList[Math.floor(Math.random() * speciesList.length)];
+  //
+  //   const attributeOrder: (keyof Species)[] = [
+  //     'taxonGenusName',
+  //     'taxonFamilyName',
+  //     'taxonOrderName',
+  //     'taxonClassName',
+  //   ];
+  //
+  //   const incorrectAnswers: Species[] = [];
+  //
+  //   for (const attribute of attributeOrder) {
+  //     // Filtra as espécies que têm o mesmo valor que a resposta correta para o atributo atual,
+  //     // e que ainda não foram adicionadas às respostas erradas
+  //     const filteredSpecies = speciesList.filter(
+  //       (s) =>
+  //         s !== correctAnswer &&
+  //         s[attribute] === correctAnswer[attribute] &&
+  //         !incorrectAnswers.includes(s),
+  //     );
+  //
+  //     // Adiciona as espécies filtradas às respostas erradas, limitando a 4
+  //     incorrectAnswers.push(
+  //       ...filteredSpecies.slice(0, 4 - incorrectAnswers.length),
+  //     );
+  //
+  //     // Se já encontramos pelo menos 4 respostas erradas, pare de procurar
+  //     if (incorrectAnswers.length >= 4) {
+  //       break;
+  //     }
+  //   }
+  //
+  //   // Se ainda não temos 4 respostas erradas, adiciona mais qualquer uma
+  //   if (incorrectAnswers.length < 4) {
+  //     const remainingSpecies = speciesList.filter(
+  //       (s) => s !== correctAnswer && !incorrectAnswers.includes(s),
+  //     );
+  //     incorrectAnswers.push(
+  //       ...remainingSpecies.slice(0, 4 - incorrectAnswers.length),
+  //     );
+  //   }
+  //
+  //   return { correctAnswer, incorrectAnswers };
+  // }
 }
