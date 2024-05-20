@@ -30,11 +30,14 @@ export class UploadService {
     const { indexMap, jsonData } = await getFileData(file);
 
     let quiz;
+    let species;
 
     await this.entityManager.transaction(async (transactionManager) => {
       quiz = await transactionManager.getRepository(Quizzes).save({
         token: token,
       });
+
+      const seenSpeciesNames = new Set();
 
       const speciesData = jsonData
         .slice(1)
@@ -73,8 +76,11 @@ export class UploadService {
             taxonGenusName &&
             taxonGenusName.trim() &&
             taxonSpeciesName &&
-            taxonSpeciesName.trim()
+            taxonSpeciesName.trim() &&
+            !seenSpeciesNames.has(taxonSpeciesName)
           ) {
+            seenSpeciesNames.add(taxonSpeciesName);
+
             return {
               userLogin,
               license,
@@ -87,21 +93,21 @@ export class UploadService {
               taxonFamilyName,
               taxonGenusName,
               taxonSpeciesName,
+              quizId: quiz.id,
             };
           }
         })
         .filter(Boolean);
 
-      await transactionManager.getRepository(Species).save(speciesData);
+      species = await transactionManager
+        .getRepository(Species)
+        .save(speciesData);
     });
-
-    //TODO create a logic to set maxQuestion
-    const maxQuestion = 10;
 
     return {
       success: true,
       message: 'File processed and data inserted successfully.',
-      maxQuestion,
+      maxQuestion: species.length,
       idQuiz: quiz.id,
     };
   }

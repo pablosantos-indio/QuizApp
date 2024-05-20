@@ -159,10 +159,10 @@ export class QuizzesService {
       incorrectAnswers.push(...randomSpecies);
     }
 
-    return { correctAnswer, incorrectAnswers: incorrectAnswers.slice(0, 4) };
+    return { correctAnswer, incorrectAnswers };
   }
 
-  //TODO feature improvement: Generate hard questions
+  //TODO feature improvement: Generate hard questions (possible future improvements)
   // private generateQuestion(speciesList: Species[]): {
   //   correctAnswer: Species;
   //   incorrectAnswers: Species[];

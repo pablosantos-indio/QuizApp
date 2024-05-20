@@ -45,6 +45,9 @@ export class Species {
   @Column({ name: 'taxon_species_name', nullable: true })
   taxonSpeciesName: string;
 
+  @Column({ name: 'quiz_id', nullable: true })
+  quizId: string;
+
   @ManyToOne(() => Quizzes, (quizzes) => quizzes.species)
   @JoinColumn({ name: 'quiz_id' })
   quizzes: Quizzes;
