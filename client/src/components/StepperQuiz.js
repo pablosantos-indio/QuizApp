@@ -28,6 +28,7 @@ export default function StepperQuiz({ questions, resetQuiz, firstName, lastName 
   const [selectedAnswersList, setSelectedAnswersList] = useState([]);
   const [lastStepConfirmed, setLastStepConfirmed] = useState(false);
   const [stepNumber, setStepNumber] = useState('');
+  const [isStepNumberValid, setIsStepNumberValid] = useState(false);
 
   
   
@@ -96,7 +97,10 @@ export default function StepperQuiz({ questions, resetQuiz, firstName, lastName 
 
 
 
-
+  const validateStepNumber = (value) => {
+    const isValid = value.trim() !== '' && parseInt(value) > 0 && parseInt(value) <= maxSteps;
+    setIsStepNumberValid(isValid);
+  };
 
 
   const handleBack = () => {
@@ -118,13 +122,13 @@ export default function StepperQuiz({ questions, resetQuiz, firstName, lastName 
     const { correct, incorrect } = calculateScore();
     if (correct > incorrect) {
       return (
-        <Typography sx={{ color: "green" }} variant="h6">
+        <Typography sx={{ fontWeight: "bold", color: "green" }} variant="h6">
           Congratulations {firstName} {lastName}!
         </Typography>
       );
     } else {
       return (
-        <Typography sx={{ color: "yellow" }} variant="h6">
+        <Typography sx={{ color: "yellow", fontWeight: "bold" }} variant="h6">
           Keep studying, {firstName} {lastName}!
         </Typography>
       );
@@ -147,7 +151,11 @@ export default function StepperQuiz({ questions, resetQuiz, firstName, lastName 
   };
 
   const handleStepNumberChange = (event) => {
-    setStepNumber(event.target.value);
+    const value = event.target.value;
+    if (/^\d*$/.test(value) || value === '') { 
+      validateStepNumber(value);
+      setStepNumber(value);
+    }
   };
 
   const handleJumpToStep = () => {
@@ -184,6 +192,12 @@ export default function StepperQuiz({ questions, resetQuiz, firstName, lastName 
           onClose={handleClose}
           aria-labelledby="customized-dialog-title"
           open={open}
+          sx={{
+            '& .MuiDialog-paper': { 
+              width: '90%', 
+              maxHeight: '90vh', 
+            },
+          }}
         >
           <DialogTitle sx={{ m: 0, p: 2 }} id="customized-dialog-title">
             Quiz Result
@@ -202,43 +216,45 @@ export default function StepperQuiz({ questions, resetQuiz, firstName, lastName 
           </IconButton>
           <DialogContent dividers>
             <Box>
-              Correct: {calculateScore().correct}
-            </Box>
-            <Box>
-              Incorrect: {calculateScore().incorrect}
-            </Box>
-            <Box>
               {renderResultMessage()}
             </Box>
-            <Typography variant="h6" gutterBottom>
-              Incorrect Answers:
-            </Typography>
-            {selectedAnswersList.map((selection) => {
-              const step = steps[selection.step];
-              if (steps[selection.step].answers[parseInt(selection.answer)].toString() !== selection.correctAnswer) {
-                return (
-                  <Box key={selection.step} mb={3}>
-                    <Typography variant="h6">
-                      Question {parseInt(selection.answer) + 1}: {step.description}
-                    </Typography>
-                    <Typography>
-                      Your Answer: {steps[selection.step].answers[parseInt(selection.answer)].toString()}
-                    </Typography>
-                    <Typography>
-                      Correct Answer: {selection.correctAnswer}
-                    </Typography>
-                    <Link
-                      href={step.url}
-                      target="_blank"
-                      rel="noopener noreferrer"
-                    >
-                      Learn more
-                    </Link>
-                  </Box>
-                );
-              }
-              return null;
-            })}
+            <Box sx={{ display: 'flex', justifyContent: 'space-between' }}>
+              <Box sx={{ bgcolor: '#4caf50', color: '#fff', padding: '8px', borderRadius: '4px', marginRight: '8px' }}>
+                Correct Answers: {calculateScore().correct}
+              </Box>
+              <Box sx={{ bgcolor: '#f44336', color: '#fff', padding: '8px', borderRadius: '4px' }}>
+                Incorrect Answers: {calculateScore().incorrect}
+              </Box>
+            </Box>
+
+           
+            {incorrectAnswer && (
+              <Box sx={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fill, minmax(250px, 1fr))', gap: '6px', mt:"20px" }}>
+                <Typography variant="h6" gutterBottom sx={{ fontWeight: 'bold', color: '#f44336', gridColumn: '1 / -1' }}>
+                  Incorrect Answers:
+                </Typography>
+                {selectedAnswersList
+                  .sort((a, b) => a.step - b.step) // Ordena as seleções pelo número da questão
+                  .map((selection, index) => {
+                    const step = steps[selection.step];
+                    if (steps[selection.step].answers[parseInt(selection.answer)].toString() !== selection.correctAnswer) {
+                      return (
+                        <Box key={selection.step}>
+                          <Link
+                            href={step.url}
+                            target="_blank"
+                            rel="noopener noreferrer"
+                            sx={{ mt: '8px', display: 'block' }}
+                          >
+                            Question {parseInt(selection.step) + 1}
+                          </Link>
+                        </Box>
+                      );
+                    }
+                    return null;
+                  })}
+              </Box>
+            )}
           </DialogContent>
 
 
@@ -268,6 +284,8 @@ export default function StepperQuiz({ questions, resetQuiz, firstName, lastName 
                 sx={{
                   position: 'relative',
                   height: 375,
+                  width: '100%',
+                  objectFit: 'contain',
                 }}
                 image={steps[activeStep].imageUrl}
               >
@@ -295,17 +313,28 @@ export default function StepperQuiz({ questions, resetQuiz, firstName, lastName 
               bgcolor: 'rgba(0, 0, 0, 0.1)',
             }}
           >
-            <Link
-              href="https://www.inaturalist.org/"
-              color="inherit"
-              underline="always"
-              target="_blank"
-              rel="noopener noreferrer"
+            <Box
+              sx={{
+                display: 'flex',
+                justifyContent: 'space-between',
+                alignItems: 'center',
+              }}
             >
-              Font: inaturalist
-            </Link>
+              <Typography>
+                Font:
+              </Typography>
+              <Link
+                href="https://www.inaturalist.org/"
+                color="inherit"
+                underline="always"
+                target="_blank"
+                rel="noopener noreferrer"
+              >
+                inaturalist
+              </Link>
+            </Box>
             <Typography>
-              License {steps[activeStep].userLogin}
+              License {steps[activeStep].license}
             </Typography>
           </Box>
 
@@ -420,22 +449,23 @@ export default function StepperQuiz({ questions, resetQuiz, firstName, lastName 
         </Card>
       </Box>
       <Box sx={{ display: "flex", justifyContent: "center", mt: 2 }}>
+        <Button
+          variant="contained"
+          onClick={handleJumpToStep}
+          sx={{ ml: 2 }}
+          disabled={!isStepNumberValid}
+        >
+          Go to Question
+        </Button>
         <TextField
-          label="Step Number"
+          label="Question"
           value={stepNumber}
           onChange={handleStepNumberChange}
           variant="outlined"
           size="small"
           type="number"
-          inputProps={{ min: 0, max: maxSteps - 1 }}
+          inputProps={{ min: 1, max: maxSteps}}
         />
-        <Button
-          variant="contained"
-          onClick={handleJumpToStep}
-          sx={{ ml: 2 }}
-        >
-          Go to Step
-        </Button>
       </Box>
     </Box>
   );

@@ -1,5 +1,5 @@
 import React, { useState, useRef, useEffect } from 'react';
-import { Box, Button, TextField, Stack, CircularProgress } from '@mui/material';
+import { Box, Grid ,Button, TextField, Stack, CircularProgress } from '@mui/material';
 import StepperQuiz from '../components/StepperQuiz';
 import { QuizService } from '../services/quiz.service';
 import { green } from '@mui/material/colors';
@@ -56,8 +56,10 @@ export default function StartQuiz() {
   };
 
   const handleStartQuiz = async () => {
-    const isFirstNameValid = firstName !== '';
-    const isLastNameValid = lastName !== '';
+    handleFirstNameChange({ target: { value: firstName } });
+    handleLastNameChange({ target: { value: lastName } });
+    const isFirstNameValid = firstName !== '' && !errorFirstName;
+    const isLastNameValid = lastName !== '' && !errorLastName;
 
     if (token && !errorToken && isFirstNameValid && isLastNameValid) {
       setSuccess(false);
@@ -93,24 +95,33 @@ export default function StartQuiz() {
 
   const handleFirstNameChange = (event) => {
     const newFirstName = event.target.value;
+    const regex = /^(?! )[A-Za-z][A-Za-z\s]*$/;
     setFirstName(newFirstName);
 
     if (!newFirstName) {
       setErrorFirstName(true);
       setErrorMessageFirstName('First Name cannot be empty.');
+    } else if (!regex.test(newFirstName)) {
+      setErrorFirstName(true);
+      setErrorMessageFirstName('First Name can only contain letters.');
     } else {
       setErrorFirstName(false);
       setErrorMessageFirstName('');
     }
   };
 
+
   const handleLastNameChange = (event) => {
     const newLastName = event.target.value;
+    const regex = /^(?! )[A-Za-z][A-Za-z\s]*$/;
     setLastName(newLastName);
 
     if (!newLastName) {
       setErrorLastName(true);
       setErrorMessageLastName('Last Name cannot be empty.');
+    } else if (!regex.test(newLastName)) {
+      setErrorLastName(true);
+      setErrorMessageLastName('Last Name can only contain letters.');
     } else {
       setErrorLastName(false);
       setErrorMessageLastName('');
@@ -159,51 +170,53 @@ export default function StartQuiz() {
               width: { xs: '100%', sm: '50%' },
             }}
           >
-            <Box>
-              <TextField
-                id="first-name"
-                label="First Name"
-                value={firstName}
-                onChange={handleFirstNameChange}
-                error={errorFirstName}
-                helperText={errorFirstName ? errorMessageFirstName : ''}
-                disabled={loading}
-                required
-                sx={{
-                  width: '100%',
-                }}
-              />
-            </Box>
-            <Box>
-              <TextField
-                id="last-name"
-                label="Last Name"
-                value={lastName}
-                onChange={handleLastNameChange}
-                error={errorLastName}
-                helperText={errorLastName ? errorMessageLastName : ''}
-                disabled={loading}
-                required
-                sx={{
-                  width: '100%',
-                }}
-              />
-            </Box>
-            <Box>
-              <TextField
-                id="token-create"
-                label="Enter Token"
-                value={token}
-                onChange={handleTokenChange}
-                error={errorToken}
-                disabled={loading}
-                helperText={errorToken ? errorMessageToken : ''}
-                required
-                sx={{
-                  width: '100%', 
-                }}
-              />
-            </Box>
+            <Grid container spacing={2}>
+              <Grid item xs={12} sm={6}>
+                <TextField
+                  id="first-name"
+                  label="First Name"
+                  value={firstName}
+                  onChange={handleFirstNameChange}
+                  error={errorFirstName}
+                  helperText={errorFirstName ? errorMessageFirstName : ''}
+                  disabled={loading}
+                  required
+                  sx={{
+                    width: '100%',
+                  }}
+                />
+              </Grid>
+              <Grid item xs={12} sm={6}>
+                <TextField
+                  id="last-name"
+                  label="Last Name"
+                  value={lastName}
+                  onChange={handleLastNameChange}
+                  error={errorLastName}
+                  helperText={errorLastName ? errorMessageLastName : ''}
+                  disabled={loading}
+                  required
+                  sx={{
+                    width: '100%',
+                  }}
+                />
+              </Grid>
+              <Grid item xs={12}>
+                <TextField
+                  id="token-create"
+                  label="Enter Token"
+                  value={token}
+                  onChange={handleTokenChange}
+                  error={errorToken}
+                  disabled={loading}
+                  helperText={errorToken ? errorMessageToken : ''}
+                  required
+                  sx={{
+                    width: '100%', 
+                  }}
+                />
+              </Grid>
+            </Grid>
             <Box sx={{ display: 'flex', justifyContent: 'center' }}>
               <Box sx={{ position: 'relative' }}>
                 <Button
@@ -211,6 +224,7 @@ export default function StartQuiz() {
                   sx={buttonSx}
                   disabled={loading}
                   onClick={handleStartQuiz}
+                  
                 >
                   Start Quiz
                 </Button>

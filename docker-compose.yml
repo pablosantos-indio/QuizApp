@@ -39,7 +39,7 @@ services:
     networks:
       - quiz-network
     command: >
-      sh -c "dockerize -wait tcp://${DB_HOST}:${DB_PORT} -timeout 60s &&
+      sh -c "dockerize -wait tcp://${DB_HOST}:${DB_PORT} -timeout 90s &&
              npm run start:prod"
 
   client:
