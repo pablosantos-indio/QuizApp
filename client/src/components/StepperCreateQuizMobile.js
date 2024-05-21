@@ -217,7 +217,7 @@ export default function StepperCreateQuizMobile() {
             <Typography variant="h4">
               Token{' '}
               {token && (
-                <span style={{ color: 'blue' }}>
+                <span style={{ color: 'white', textDecoration: 'underline' }}>
                   {token}
                 </span>
               )}{' '}

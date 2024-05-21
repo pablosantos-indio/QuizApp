@@ -228,7 +228,6 @@ export default function StepperQuiz({ questions, resetQuiz, firstName, lastName 
               </Box>
             </Box>
 
-           
             {incorrectAnswer && (
               <Box sx={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fill, minmax(250px, 1fr))', gap: '6px', mt:"20px" }}>
                 <Typography variant="h6" gutterBottom sx={{ fontWeight: 'bold', color: '#f44336', gridColumn: '1 / -1' }}>

@@ -180,9 +180,9 @@ export default function StepperCreateQuiz() {
               <Typography variant="h4">
                 Token{' '}
                 {token && (
-                  <span style={{ color: 'orange' }}>
-                    {token}
-                  </span>
+                  <span style={{ color: 'white', textDecoration: 'underline' }}>
+                  {token}
+                </span>
                 )}{' '}
                 created!
               </Typography>
