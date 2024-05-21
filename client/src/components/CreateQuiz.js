@@ -106,8 +106,8 @@ export default function CreateQuiz({
                         />
                     </Box>
 
-                    <Box>
-                        <FormControl sx={{ m: 3 }} error={errorFileUpload} variant="standard">
+                    <Box >
+                        <FormControl sx={{ width: { xs: '100%', sm: '300px' } }} error={errorFileUpload} variant="standard">
                             <FormLabel htmlFor="upload-file" required>
                                 Upload File (.csv,.xls,.xlsx)
                             </FormLabel>
@@ -119,6 +119,7 @@ export default function CreateQuiz({
                                 startIcon={<CloudUploadIcon />}
                                 name="upload-file"
                                 disabled={loading}
+                                
                             >
                                 Choose File
                                 <VisuallyHiddenInput type="file" accept=".csv, .xlsx, .xls" required onChange={handleFileChange} />

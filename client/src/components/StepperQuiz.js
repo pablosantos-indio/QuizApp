@@ -38,7 +38,8 @@ export default function StepperQuiz({ questions, resetQuiz, firstName, lastName 
     userLogin: quiz.userLogin,
     url: quiz.url,
     correctAnswer: quiz.correctAnswer,
-    answers: quiz.answers
+    answers: quiz.answers,
+    license: quiz.license
   }));
   
   const maxSteps = steps.length;
@@ -122,13 +123,13 @@ export default function StepperQuiz({ questions, resetQuiz, firstName, lastName 
     const { correct, incorrect } = calculateScore();
     if (correct > incorrect) {
       return (
-        <Typography sx={{ fontWeight: "bold", color: "green" }} variant="h6">
+        <Typography sx={{ fontWeight: "bold"}} variant="h6">
           Congratulations {firstName} {lastName}!
         </Typography>
       );
     } else {
       return (
-        <Typography sx={{ color: "yellow", fontWeight: "bold" }} variant="h6">
+        <Typography sx={{ fontWeight: "bold" }} variant="h6">
           Keep studying, {firstName} {lastName}!
         </Typography>
       );
@@ -215,14 +216,14 @@ export default function StepperQuiz({ questions, resetQuiz, firstName, lastName 
             <CloseIcon />
           </IconButton>
           <DialogContent dividers>
-            <Box>
+            <Box display={'flex'} justifyContent={'center'} alignContent={'center'} marginBottom={'30px'}>
               {renderResultMessage()}
             </Box>
-            <Box sx={{ display: 'flex', justifyContent: 'space-between' }}>
-              <Box sx={{ bgcolor: '#4caf50', color: '#fff', padding: '8px', borderRadius: '4px', marginRight: '8px' }}>
+            <Box sx={{ display: 'flex', justifyContent: 'space-around' }}>
+              <Box sx={{ bgcolor: '#4caf50', color: '#fff', padding: '3px', borderRadius: '4px', marginRight: '5px' }}>
                 Correct Answers: {calculateScore().correct}
               </Box>
-              <Box sx={{ bgcolor: '#f44336', color: '#fff', padding: '8px', borderRadius: '4px' }}>
+              <Box sx={{ bgcolor: '#f44336', color: '#fff', padding: '3px', borderRadius: '4px' }}>
                 Incorrect Answers: {calculateScore().incorrect}
               </Box>
             </Box>
@@ -234,7 +235,7 @@ export default function StepperQuiz({ questions, resetQuiz, firstName, lastName 
                   Incorrect Answers:
                 </Typography>
                 {selectedAnswersList
-                  .sort((a, b) => a.step - b.step) // Ordena as seleções pelo número da questão
+                  .sort((a, b) => a.step - b.step) 
                   .map((selection, index) => {
                     const step = steps[selection.step];
                     if (steps[selection.step].answers[parseInt(selection.answer)].toString() !== selection.correctAnswer) {
@@ -281,14 +282,15 @@ export default function StepperQuiz({ questions, resetQuiz, firstName, lastName 
           <CardActionArea>
             <Link href={steps[activeStep].imageUrl} target="_blank" rel="noopener noreferrer">
               <CardMedia
+                component="img"
                 sx={{
-                  position: 'relative',
                   height: 375,
-                  width: '100%',
-                  objectFit: 'contain',
+                  width: 500,
+                  objectFit:"cover",
                 }}
                 image={steps[activeStep].imageUrl}
               >
+              </CardMedia>
                 <Typography
                   sx={{
                     position: 'absolute',
@@ -301,7 +303,6 @@ export default function StepperQuiz({ questions, resetQuiz, firstName, lastName 
                 >
                   Photo by {steps[activeStep].userLogin}
                 </Typography>
-              </CardMedia>
             </Link>
           </CardActionArea>
           <Box
@@ -356,25 +357,39 @@ export default function StepperQuiz({ questions, resetQuiz, firstName, lastName 
                       const isSelected = selectedAnswersList.some((selection) => {
                         return selection.step === activeStep && selection.answer === index.toString();
                       });
-                      const isCorrectSelection = answer === correctAnswer; // Verifica se esta resposta é a correta
+                      const isCorrectSelection = answer === correctAnswer;
                       const isIncorrectSelection = isSelected && !isCorrectSelection;
 
-                     
+                      const bgcolor = isCorrectSelection
+                        ? "#90EE90"
+                        : isIncorrectSelection
+                          ? "#FF7F7F"
+                          : isSelected
+                            ? "#FFD700"
+                            : "transparent";
+                      const color = "black" ;
+
                       return (
                         <FormControlLabel
                           key={`${index}-${answer}`}
-                          value={index.toString()} // Define o valor como o índice convertido para string
+                          value={index.toString()}
                           control={<Radio />}
-                          label={answer}
-                          sx={{
-                            color: isCorrectSelection
-                              ? "green"
-                              : isIncorrectSelection
-                                ? "red"
-                                : isSelected
-                                  ? "orange"
-                                  : undefined,
-                          }}
+                          label={
+                            <Box
+                              sx={{
+                                position: 'relative',
+                                display: 'inline-block',
+                                bgcolor: bgcolor,
+                                borderRadius: 1,
+                                px: 1,
+                                color: color,
+                              }}
+                            >
+                              <Typography sx={{ position: 'relative', zIndex: 1 }}>
+                                {answer}
+                              </Typography>
+                            </Box>
+                          }
                         />
                       );
                     })
@@ -382,6 +397,8 @@ export default function StepperQuiz({ questions, resetQuiz, firstName, lastName 
                     <Typography>No answers available</Typography>
                   )}
                 </RadioGroup>
+
+
 
 
                 <Box mt={2} sx={{ display: "flex", justifyContent: "center" }}>

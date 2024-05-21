@@ -1,5 +1,5 @@
 import React, { useState, useEffect } from 'react';
-import { Box, Typography, Button, LinearProgress } from '@mui/material';
+import { Box, Typography, LinearProgress } from '@mui/material';
 
 export default function ProgressTracker({ totalQuestions, correctAnswers, incorrectAnswers }) {
   const [totalProgress, setTotalProgress] = useState(0);
@@ -12,12 +12,11 @@ export default function ProgressTracker({ totalQuestions, correctAnswers, incorr
 
   return (
     <Box sx={{ display: 'flex', flexDirection: 'column', alignItems: 'center' }}>
-      <Box  width="100%">
+      <Box width="100%">
         <Typography variant="subtitle2" gutterBottom>
-          Total Progress: {totalProgress}%
+          Total Progress: {totalProgress.toFixed(1)}%
         </Typography>
         <LinearProgress variant="determinate" value={totalProgress} />
-
       </Box>
 
       <Box sx={{ display: 'flex', justifyContent: 'space-between', width: '100%' }}>
@@ -34,7 +33,6 @@ export default function ProgressTracker({ totalQuestions, correctAnswers, incorr
           <LinearProgress color="error" variant="determinate" value={(incorrectAnswers / totalQuestions) * 100} />
         </Box>
       </Box>
-
     </Box>
   );
 }
