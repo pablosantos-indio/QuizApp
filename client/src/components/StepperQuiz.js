@@ -399,8 +399,6 @@ export default function StepperQuiz({ questions, resetQuiz, firstName, lastName 
                 </RadioGroup>
 
 
-
-
                 <Box mt={2} sx={{ display: "flex", justifyContent: "center" }}>
                   <Button
                     variant="contained"
