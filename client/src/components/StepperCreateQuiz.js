@@ -17,7 +17,8 @@ export default function StepperCreateQuiz() {
   const [errorFileUpload, setErrorFileUpload] = useState(false);
   const [errorMessageFileUpload, setErrorMessageFileUpload] = useState('');
   
-  
+  const [errorResponseMessage, setErrorResponseMessage] = useState('');
+
   const [activeStep, setActiveStep] = useState(0);
   const [file, setFile] = useState(null);
   const [token, setToken] = useState('');
@@ -59,19 +60,18 @@ export default function StepperCreateQuiz() {
         try {
           const response = await QuizService.create(formData);
           if (response.success) {
+            
             setMaxNumberQuestions(response.maxQuestion);
             setIdQuiz(response.idQuiz);
             setActiveStep((prevActiveStep) => prevActiveStep + 1);
             setErrorCreateToken(false)
-            setErrorMessageCreateToken("");
+            setErrorMessageCreateToken('');
+            setErrorResponseMessage('')
           }
         } catch (error) {
-          if (error.response.data.message === "There's already a quiz with this token.") {
-            setErrorCreateToken(true)
-            setErrorMessageCreateToken(error.response?.data?.message || 'An error occurred while processing your request.');
-          } else {
-            setErrorFileUpload(true)
-            setErrorMessageFileUpload("Wrong file format, please select a file in the formats .csv, .xls, .xlsx.");
+
+          if (error.response.data.message) {
+            setErrorResponseMessage(error.response?.data?.message || 'An error occurred while processing your request.');
           }
           setSuccess(false);
 
@@ -163,7 +163,7 @@ export default function StepperCreateQuiz() {
       </Stepper>
       {activeStep === steps.length ? (
         <React.Fragment>
-          <Box sx={{ display: 'flex', flexDirection: 'column', alignItems: 'center', justifyContent: 'center', p: "80px" }}>
+          <Box sx={{ display: 'flex', flexDirection: 'column', alignItems: 'center', justifyContent: 'center',paddingTop:"50px" }}>
             <Box
               sx={{
                 backgroundColor: 'green',
@@ -181,8 +181,8 @@ export default function StepperCreateQuiz() {
                 Token{' '}
                 {token && (
                   <span style={{ color: 'white', textDecoration: 'underline' }}>
-                  {token}
-                </span>
+                    {token}
+                  </span>
                 )}{' '}
                 created!
               </Typography>
@@ -216,6 +216,7 @@ export default function StepperCreateQuiz() {
                 setErrorFileUpload={setErrorFileUpload}
                 errorMessageFileUpload={errorMessageFileUpload}
                 setErrorMessageFileUpload={setErrorMessageFileUpload}
+                errorResponseMessage={errorResponseMessage}
               />
             ) : activeStep === 1 ? (
                 <QuizConfiguration
@@ -229,6 +230,8 @@ export default function StepperCreateQuiz() {
                 errorQuestionType={errorQuestionType}
                 errorMessageNumberQuestions={errorMessageNumberQuestions}
                 errorMessageQuestionType={errorMessageQuestionType}
+                errorResponseMessage={errorResponseMessage}
+
               />
             ) : null}
             <Box sx={{ display: 'flex', flexDirection: 'row', pt: 2 }}>

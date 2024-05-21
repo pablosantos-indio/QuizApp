@@ -1,14 +1,10 @@
 import React from 'react';
-import Box from '@mui/material/Box';
-import FormControlLabel from '@mui/material/FormControlLabel';
-import FormLabel from '@mui/material/FormLabel';
-import RadioGroup from '@mui/material/RadioGroup';
-import Stack from '@mui/material/Stack';
-import Radio from '@mui/material/Radio';
-import TextField from '@mui/material/TextField';
-import { FormHelperText, FormControl } from '@mui/material';
+import {
+  Box, FormLabel, FormControlLabel, RadioGroup, Stack, Radio
+  , TextField, Alert, FormHelperText, FormControl} from '@mui/material';
 
-export default function QuizConfiguration({ maxNumberQuestions, quantityQuestion, questionType, setQuantityQuestion, setQuestionType, errorQuestionType, errorNumberQuestions, errorMessageNumberQuestions, errorMessageQuestionType, loading }) {
+
+export default function QuizConfiguration({ maxNumberQuestions, quantityQuestion, questionType, setQuantityQuestion, setQuestionType, errorQuestionType, errorNumberQuestions, errorMessageNumberQuestions, errorMessageQuestionType, loading, errorResponseMessage }) {
 
   const handleNumberQuestionsChange = (event) => {
     let value = event.target.value.replace(/\D/g, '');
@@ -52,6 +48,11 @@ export default function QuizConfiguration({ maxNumberQuestions, quantityQuestion
             boxShadow: '0px 4px 8px rgba(0, 0, 0, 0.05)',
           }}
         >
+          <Box>
+            {errorResponseMessage && (
+              <Alert severity="error">{errorResponseMessage}</Alert>
+            )}
+          </Box>
           <Box sx={{ display: 'flex', flexDirection: 'column' }}>
             <FormControl sx={{ gap:1}} error={errorQuestionType} variant="standard">
               <FormLabel htmlFor="number-questions" sx={{ display: 'inline',  fontWeight: 'normal' }} required>

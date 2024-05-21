@@ -228,10 +228,11 @@ export default function StepperQuiz({ questions, resetQuiz, firstName, lastName 
               </Box>
             </Box>
 
+           
             {incorrectAnswer && (
               <Box sx={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fill, minmax(250px, 1fr))', gap: '6px', mt:"20px" }}>
-                <Typography variant="h6" gutterBottom sx={{ fontWeight: 'bold', color: '#f44336', gridColumn: '1 / -1' }}>
-                  Incorrect Answers:
+                <Typography variant="h6" gutterBottom sx={{ fontWeight: 'bold', color: '#f44336', gridColumn: '1 / -1', display:"flex", justifyContent:"center", alignItems:"center" }}>
+                  Incorrect Answers
                 </Typography>
                 {selectedAnswersList
                   .sort((a, b) => a.step - b.step) 
@@ -239,7 +240,7 @@ export default function StepperQuiz({ questions, resetQuiz, firstName, lastName 
                     const step = steps[selection.step];
                     if (steps[selection.step].answers[parseInt(selection.answer)].toString() !== selection.correctAnswer) {
                       return (
-                        <Box key={selection.step}>
+                        <Box display={'flex'} justifyContent={'center'} alignContent={'center'}  key={selection.step}>
                           <Link
                             href={step.url}
                             target="_blank"
@@ -360,11 +361,11 @@ export default function StepperQuiz({ questions, resetQuiz, firstName, lastName 
                       const isIncorrectSelection = isSelected && !isCorrectSelection;
 
                       const bgcolor = isCorrectSelection
-                        ? "#90EE90"
+                        ? "#90EE90"  // Verde claro
                         : isIncorrectSelection
-                          ? "#FF7F7F"
+                          ? "#FF7F7F"  // Vermelho claro
                           : isSelected
-                            ? "#FFD700"
+                            ? "#FFD700"  // Laranja claro
                             : "transparent";
                       const color = "black" ;
 

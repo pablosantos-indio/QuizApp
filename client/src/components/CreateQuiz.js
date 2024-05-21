@@ -1,7 +1,7 @@
 import React from 'react';
 import { styled } from '@mui/material/styles';
 import CloudUploadIcon from '@mui/icons-material/CloudUpload';
-import { Button, Box, Typography, TextField, Stack, FormHelperText, FormControl, FormLabel, Paper } from '@mui/material';
+import { Button, Box, Typography, TextField, Stack, FormHelperText, FormControl, FormLabel, Alert } from '@mui/material';
 
 const VisuallyHiddenInput = styled('input')({
     clip: 'rect(0 0 0 0)',
@@ -29,6 +29,7 @@ export default function CreateQuiz({
     setErrorMessageCreateToken,
     errorCreateToken,
     errorMessageCreateToken,
+    errorResponseMessage
 }) {
     const handleTokenChange = (event) => {
         const newToken = event.target.value;
@@ -92,6 +93,11 @@ export default function CreateQuiz({
                         boxShadow: '0px 4px 8px rgba(0, 0, 0, 0.05)',
                     }}
                 >
+                    <Box>
+                        {errorResponseMessage && (
+                            <Alert severity="error">{errorResponseMessage}</Alert>
+                        )}
+                    </Box>
                    
                     <Box sx={{ display: 'flex', flexDirection: 'column' }}>
                         <TextField

@@ -23,6 +23,7 @@ export default function StepperCreateQuizMobile() {
   const [errorCreateToken, setErrorCreateToken] = useState(false);
   const [errorFileUpload, setErrorFileUpload] = useState(false);
   const [errorMessageFileUpload, setErrorMessageFileUpload] = useState('');
+  const [errorResponseMessage, setErrorResponseMessage] = useState('');
 
   const [successMessage, setSuccessMessage] = useState('');
   const [quantityQuestion, setQuantityQuestion] = useState('');
@@ -58,6 +59,8 @@ export default function StepperCreateQuizMobile() {
         setErrorFileUpload={setErrorFileUpload}
         errorMessageFileUpload={errorMessageFileUpload}
         setErrorMessageFileUpload={setErrorMessageFileUpload}
+        errorResponseMessage={errorResponseMessage}
+
       />,
       actionButtonLabel: 'Send'
     },
@@ -74,6 +77,8 @@ export default function StepperCreateQuizMobile() {
         errorQuestionType={errorQuestionType}
         errorMessageNumberQuestions={errorMessageNumberQuestions}
         errorMessageQuestionType={errorMessageQuestionType}
+        errorResponseMessage={errorResponseMessage}
+
       />,
       actionButtonLabel: 'Generate Quiz'
     },
@@ -101,15 +106,14 @@ export default function StepperCreateQuizMobile() {
             setIdQuiz(response.idQuiz);
             setActiveStep((prevActiveStep) => prevActiveStep + 1);
             setErrorCreateToken(false)
-            setErrorMessageCreateToken("");
+            setErrorMessageCreateToken('');
+            setErrorResponseMessage('')
+
           }
         } catch (error) {
-          if (error.response.data.message === "There's already a quiz with this token." || "Token must include at least one letter and one number and cannot contain special characters or spaces.") {
-            setErrorCreateToken(true)
-            setErrorMessageCreateToken(error.response?.data?.message || 'An error occurred while processing your request.');
-          } else {
-            setErrorFileUpload(true)
-            setErrorMessageFileUpload("Wrong file format, please select a file in the formats .csv, .xls, .xlsx.");
+          if (error.response.data.message ) {
+            setErrorResponseMessage(error.response?.data?.message || 'An error occurred while processing your request.');
+        
           }
           setSuccess(false);
 
@@ -141,7 +145,6 @@ export default function StepperCreateQuizMobile() {
       const quantityQuestionNumber = parseInt(quantityQuestion, 10);
       setSuccess(false);
       setLoading(true);
-      setTimeout(async () => {
 
       try {
         const response = await QuizService.update(idQuiz, quantityQuestionNumber, questionType);
@@ -155,7 +158,6 @@ export default function StepperCreateQuizMobile() {
       } finally {
         setLoading(false);
       }
-      }, 10000); // Atraso de 2 segundos
 
     } else if (!quantityQuestion && !questionType) {
       setErrorMessageNumberQuestions('Please provide a number.');
@@ -209,6 +211,10 @@ export default function StepperCreateQuizMobile() {
               textAlign: 'center',
               color: 'white',
               margin: '20px 0',
+              '@media (max-width: 600px)': {
+                padding: '10px',
+                margin: '10px 0',
+              },
             }}
           >
             <Typography variant="h4" sx={{ marginBottom: '10px' }}>
@@ -223,7 +229,6 @@ export default function StepperCreateQuizMobile() {
               )}{' '}
               created!
             </Typography>
-
           </Box>
         ) : (
           <Typography variant="h6" sx={{ fontWeight: 'bold' }}>
