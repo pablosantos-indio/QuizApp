@@ -8,7 +8,6 @@ import QuizConfiguration from './QuizConfiguration';
 import { QuizService } from "../services/quiz.service";
 import { green } from '@mui/material/colors';
 
-
 export default function StepperCreateQuizMobile() {
   const theme = useTheme();
   const [activeStep, setActiveStep] = useState(0);
@@ -177,13 +176,6 @@ export default function StepperCreateQuizMobile() {
     }
   };
 
-  
-  
-
-  const handleBack = () => {
-    setActiveStep((prevActiveStep) => prevActiveStep - 1);
-  };
-
   const handleReset = () => {
     setErrorMessageNumberQuestions('');
     setErrorMessageQuestionType('');
@@ -277,7 +269,7 @@ export default function StepperCreateQuizMobile() {
                 disabled={loading}
                 onClick={handleCreate}
               >
-                Create
+                Generate Quiz
               </Button>
               {loading && (
                 <CircularProgress
@@ -294,47 +286,21 @@ export default function StepperCreateQuizMobile() {
               )}
             </Box>
           ) : activeStep === 2 ? (
-            <Box >
-              <Button
-                size="small"
-                    onClick={handleBack}
-                    style={{ visibility: activeStep === 2 ? 'hidden' : 'visible' }} 
-                    disabled={activeStep === 2}
+                <Button
+                  size="large"
+                  variant="contained"
+                  color="primary"
+                  onClick={handleReset}
 
-              >
-                
-              </Button>
-            </Box>
+                >
+                  Home
+                </Button>
           ) : null
         }
 
-
         backButton={
-          activeStep === maxSteps - 1 ? (
-            <Button
-              size="large"
-              variant="contained"
-              color="primary"
-              onClick={handleReset}
-
-            >
-              Home
-            </Button>
-          ) : (
-            <Button
-              size="small"
-              onClick={handleBack}
-              disabled={activeStep === 0}
-              style={{ visibility: activeStep === 0 ? 'hidden' : 'visible' }} 
-            >
-              {theme.direction === 'rtl' ? (
-                <KeyboardArrowRight />
-              ) : (
-                <KeyboardArrowLeft />
-              )}
-              Back
-            </Button>
-          )
+            <Box visibility="hidden" >
+            </Box>
         }
 
       />

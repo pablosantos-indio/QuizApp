@@ -42,8 +42,9 @@ export default function StepperCreateQuiz() {
   };
 
   useEffect(() => {
+    const currentTimer = timer.current;
     return () => {
-      clearTimeout(timer.current);
+      clearTimeout(currentTimer);
     };
   }, []);
 
@@ -95,10 +96,6 @@ export default function StepperCreateQuiz() {
         setErrorMessageFileUpload('');
       }
     }
-  };
-
-  const handleBack = () => {
-    setActiveStep((prevActiveStep) => prevActiveStep - 1);
   };
 
   const handleReset = () => {
@@ -189,8 +186,6 @@ export default function StepperCreateQuiz() {
 
             </Box>
 
-
-
             <Box sx={{ display: 'flex', flexDirection: 'row', pt: 2 }}>
               <Box sx={{ flex: '1 1 auto' }} />
               <Button onClick={handleReset} variant="contained" color="primary">Home</Button>
@@ -235,11 +230,7 @@ export default function StepperCreateQuiz() {
               />
             ) : null}
             <Box sx={{ display: 'flex', flexDirection: 'row', pt: 2 }}>
-              {activeStep !== 0 && (
-                <Button color="inherit" disabled={activeStep === 0} onClick={handleBack} sx={{ mr: 1 }}>
-                  Back
-                </Button>
-              )}
+
               <Box sx={{ flex: '1 1 auto' }} />
                 {activeStep === steps.length - 1 ? (
                   <Box sx={{ m: 1, position: 'relative' }}>

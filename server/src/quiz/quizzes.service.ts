@@ -29,6 +29,12 @@ export class QuizzesService {
       throw new NotFoundException('Quiz not found.');
     }
 
+    if (!quiz.quantityQuestion) {
+      throw new NotFoundException(
+        'This Token is flawed. Please re-upload and generate with a new token again.',
+      );
+    }
+
     const quizQuantity = quiz.quantityQuestion;
     const quizQuestions = this.generateQuiz(
       quiz.species,
